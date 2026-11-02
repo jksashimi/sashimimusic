@@ -114,12 +114,10 @@ kbd { font: 11px/1 var(--font-mono); color: var(--fg-3); border: 1px solid var(-
 .nav-pls .nav-item.drop { background: var(--accent-soft); color: var(--fg); box-shadow: inset 0 0 0 1px var(--accent); }
 .nav-empty { margin: 2px 10px; color: var(--fg-3); font-size: 13px; }
 
-.mini-cover { position: sticky; bottom: 0; margin-top: auto; padding: 10px 0 14px; background: linear-gradient(to bottom, transparent, var(--bg) 18px); }
-.mini-cover-head { display: flex; align-items: center; gap: 2px; padding: 0 2px 6px 4px; color: var(--fg-3); font-size: 12px; letter-spacing: .08em; }
-.mini-cover-head span { flex: 1; }
-.mini-cover-art { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-sm); background: var(--surface); overflow: hidden; }
-.mini-cover-art img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s var(--ease), filter .2s, opacity .25s; }
-.mini-cover-art:hover img { transform: scale(1.04); filter: brightness(1.08); }
+.mini-video { position: sticky; bottom: 0; margin-top: auto; padding: 10px 0 14px; background: linear-gradient(to bottom, transparent, var(--bg) 18px); }
+.mini-video-head { display: flex; align-items: center; gap: 2px; padding: 0 2px 6px 4px; color: var(--fg-3); font-size: 12px; letter-spacing: .08em; }
+.mini-video-head span { flex: 1; }
+.mini-video-slot { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-sm); background: var(--surface); overflow: hidden; }
 
 /* ---------- Buttons & inputs ---------- */
 .btn {
@@ -418,8 +416,8 @@ body.paused .eq i { animation-play-state: paused; }
   padding: 4px max(48px, env(safe-area-inset-right, 0px)) calc(var(--bottom-ui) + 20px) max(48px, env(safe-area-inset-left, 0px));
 }
 .np-left { display: flex; flex-direction: column; justify-content: center; gap: 24px; min-width: 0; min-height: 0; }
-.np-art { position: relative; width: 100%; max-width: 720px; aspect-ratio: 16 / 9; border-radius: var(--r); overflow: hidden; background: var(--surface); box-shadow: 0 30px 90px rgba(0, 0, 0, .6); }
-.np-cover { width: 100%; height: 100%; object-fit: cover; transition: opacity .25s; }
+.np-video { position: relative; width: 100%; max-width: 720px; aspect-ratio: 16 / 9; border-radius: var(--r); overflow: hidden; background: var(--surface); box-shadow: 0 30px 90px rgba(0, 0, 0, .6); }
+.np-cover { width: 100%; height: 100%; object-fit: cover; }
 .np-meta { display: flex; align-items: flex-start; gap: 12px; max-width: 720px; }
 .np-meta-text { flex: 1; min-width: 0; }
 .np-title { margin: 0; font-size: clamp(24px, 2.6vw, 38px); line-height: 1.14; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; overflow-wrap: anywhere; }
@@ -513,18 +511,9 @@ body.paused .eq i { animation-play-state: paused; }
 .np .qrow:hover { background: rgba(255, 255, 255, .07); }
 
 /* ---------- Video dock ---------- */
-/* Audio source only: stays inside the viewport (so the browser keeps it running at full speed), invisible and click-through */
-.video-dock { position: fixed; left: 0; bottom: 0; z-index: -1; width: 200px; height: 200px; overflow: hidden; background: #000; opacity: 0; pointer-events: none; }
+.video-dock { position: fixed; left: 0; top: 0; z-index: 6; width: 320px; height: 180px; overflow: hidden; border-radius: var(--r-sm); background: #000; transform: translate(-10000px, 0); }
 .video-dock iframe { display: block; width: 100%; height: 100%; border: 0; }
-.video-dock .dock-close { display: none; }
-/* Shown on request, e.g. to press "Skip ad" */
-.video-dock.shown {
-  z-index: 70; left: auto; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(var(--bottom-ui) + 16px);
-  width: min(360px, calc(100vw - 32px)); height: auto; aspect-ratio: 16 / 9;
-  opacity: 1; pointer-events: auto; border-radius: var(--r); box-shadow: 0 20px 60px rgba(0, 0, 0, .65);
-}
-.video-dock.shown .dock-close { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(0, 0, 0, .7); color: #fff; }
-.video-dock.shown .dock-close .i { width: 16px; height: 16px; }
+body.np-open .video-dock { z-index: 42; border-radius: var(--r); }
 .yt-helper { position: fixed; left: -10000px; top: 0; width: 200px; height: 200px; visibility: hidden; pointer-events: none; }
 
 /* ---------- Menus ---------- */
@@ -692,7 +681,7 @@ body.paused .eq i { animation-play-state: paused; }
   .np-head { padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 4px; }
   .np-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 12px; padding: 0 16px calc(var(--bottom-ui) + 4px); }
   .np-left { flex-direction: row; align-items: center; gap: 14px; justify-content: flex-start; }
-  .np-art { width: 42%; max-width: 230px; flex: none; border-radius: 6px; box-shadow: 0 12px 30px rgba(0, 0, 0, .5); }
+  .np-video { width: 42%; max-width: 230px; flex: none; border-radius: 6px; box-shadow: 0 12px 30px rgba(0, 0, 0, .5); }
   .np-meta { flex: 1; min-width: 0; gap: 4px; }
   .np-title { font-size: 19px; }
   .np-trans { font-size: 13.5px; margin-top: 3px; }
@@ -787,12 +776,13 @@ body.paused .eq i { animation-play-state: paused; }
       <div class="nav-label"><span>播放清單</span><button class="icon-btn xs" type="button" data-act="pl-new" aria-label="新增播放清單"><svg class="i" aria-hidden="true"><use href="#i-plus"></use></svg></button></div>
       <div id="sidebarPlaylists"></div>
     </nav>
-    <section class="mini-cover" id="miniCover" hidden aria-label="正在播放">
-      <div class="mini-cover-head">
-        <span>正在播放</span>
-        <button class="icon-btn xs" type="button" data-act="cover-hide" aria-label="隱藏側欄封面"><svg class="i" aria-hidden="true"><use href="#i-x"></use></svg></button>
+    <section class="mini-video" id="miniVideo" hidden aria-label="影片">
+      <div class="mini-video-head">
+        <span>影片</span>
+        <button class="icon-btn xs" type="button" data-act="np-open" aria-label="開啟正在播放"><svg class="i" aria-hidden="true"><use href="#i-expand"></use></svg></button>
+        <button class="icon-btn xs" type="button" data-act="video-hide" aria-label="隱藏影片"><svg class="i" aria-hidden="true"><use href="#i-x"></use></svg></button>
       </div>
-      <button class="mini-cover-art" type="button" data-act="np-open" aria-label="開啟正在播放"><img id="miniCoverImg" alt=""></button>
+      <div class="mini-video-slot" id="miniVideoSlot"></div>
     </section>
   </aside>
 
@@ -872,7 +862,7 @@ body.paused .eq i { animation-play-state: paused; }
   </header>
   <div class="np-body">
     <div class="np-left">
-      <div class="np-art"><img class="np-cover" id="npCover" alt=""></div>
+      <div class="np-video" id="npVideoSlot"><img class="np-cover" id="npCover" alt=""></div>
       <div class="np-meta">
         <div class="np-meta-text">
           <h2 class="np-title" id="npTitle"></h2>
@@ -909,11 +899,7 @@ body.paused .eq i { animation-play-state: paused; }
   <div class="drawer-body" id="drawerBody"></div>
 </aside>
 
-<!-- The YouTube player is only the audio source: kept in the viewport but invisible and unfocusable -->
-<div class="video-dock" id="videoDock" inert aria-hidden="true">
-  <div id="ytPlayer"></div>
-  <button class="dock-close" type="button" data-act="dock-hide" aria-label="隱藏 YouTube 播放器"><svg class="i" aria-hidden="true"><use href="#i-x"></use></svg></button>
-</div>
+<div class="video-dock" id="videoDock"><div id="ytPlayer"></div></div>
 <div id="menuLayer"></div>
 <div id="modalLayer"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -1389,7 +1375,7 @@ const Store = {
       history: [],
       settings: {
         tl: 'zh-TW', showTrans: true, autoTrans: true, autoLyrics: true, lyricTrans: false,
-        apiKey: '', volume: 80, muted: false, rate: 1, showCover: true, lyricScale: 1, sort: 'added',
+        apiKey: '', volume: 80, muted: false, rate: 1, showVideo: true, lyricScale: 1, sort: 'added',
       },
       queue: { ids: [], ordered: [], index: -1, shuffle: false, repeat: 'off', ctx: null, pos: 0 },
     };
@@ -1399,10 +1385,7 @@ const Store = {
     try { d = JSON.parse(localStorage.getItem(this.KEY) || 'null'); } catch (e) { d = null; }
     const def = this.defaults();
     if (!d || typeof d !== 'object') d = def;
-    const old = d.settings || {};
-    if (old.showCover === undefined && old.showVideo !== undefined) old.showCover = old.showVideo; // earlier versions showed video here
-    delete old.showVideo;
-    d.settings = { ...def.settings, ...old };
+    d.settings = { ...def.settings, ...(d.settings || {}) };
     d.queue = { ...def.queue, ...(d.queue || {}) };
     if (!d.songs || typeof d.songs !== 'object') d.songs = {};
     for (const k of ['order', 'likes', 'playlists', 'history']) if (!Array.isArray(d[k])) d[k] = [];
@@ -2519,12 +2502,10 @@ const Bar = {
       $('#pbArtist').textContent = '';
       $('#pbLike').hidden = true;
       document.title = APP.name;
-      updateMiniCover(null);
       return;
     }
     art.hidden = false;
     art.src = thumb(s.id, 'mq');
-    updateMiniCover(s.id);
     const t = $('#pbTitle');
     t.textContent = s.title;
     const lg = LANG_ATTR[songLang(s)];
@@ -2863,42 +2844,35 @@ async function removeFromLibrary(id) {
   toast('已從音樂庫移除');
 }
 
-/* ---------- Covers ---------- */
+/* ---------- Video dock: one persistent iframe, positioned over the visible slot ---------- */
 
-/* Sharpest available thumbnail: maxres (1280×720) → sd → hq. A missing maxres comes back as a 120px placeholder. */
-const COVER_Q = ['maxres', 'sd', 'hq'];
-function setCover(el, id) {
-  if (!el) return;
-  if (!id) { el.dataset.id = ''; el.removeAttribute('src'); return; }
-  if (el.dataset.id === id) return;
-  el.dataset.id = id;
-  el.style.opacity = '0';
-  let k = 0;
-  const next = () => { if (el.dataset.id === id && k < COVER_Q.length) el.src = thumb(id, COVER_Q[k++]); };
-  el.onload = () => { if (el.naturalWidth > 120) el.style.opacity = ''; else next(); };
-  el.onerror = next;
-  next();
+let dockKey = '';
+function syncDock() {
+  const dock = $('#videoDock');
+  let slot = null;
+  if (NP.isOpen) slot = $('#npVideoSlot');
+  else if (S().showVideo && Player.id) {
+    const mv = $('#miniVideo');
+    if (mv && !mv.hidden && mv.offsetParent !== null) slot = $('#miniVideoSlot');
+  }
+  let key = 'off';
+  if (slot) {
+    const r = slot.getBoundingClientRect();
+    if (r.width > 2 && r.height > 2) key = `${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)},${Math.round(r.height)}`;
+  }
+  if (key === dockKey) return;
+  dockKey = key;
+  if (key === 'off') {
+    dock.style.transform = 'translate(-10000px, 0)';
+    dock.style.width = '320px';
+    dock.style.height = '180px';
+    return;
+  }
+  const [x, y, w, h] = key.split(',').map(Number);
+  dock.style.transform = `translate(${x}px, ${y}px)`;
+  dock.style.width = w + 'px';
+  dock.style.height = h + 'px';
 }
-
-function updateMiniCover(id) {
-  const box = $('#miniCover');
-  box.hidden = !id || !S().showCover;
-  setCover($('#miniCoverImg'), id || null);
-}
-
-/* ---------- Hidden YouTube player (shown only on request, e.g. to skip an ad) ---------- */
-
-const Dock = {
-  shown: false,
-  set(show) {
-    this.shown = show;
-    const d = $('#videoDock');
-    d.classList.toggle('shown', show);
-    d.toggleAttribute('inert', !show);
-    d.setAttribute('aria-hidden', show ? 'false' : 'true');
-  },
-  toggle() { this.set(!this.shown); },
-};
 
 /* =====================================================================
    Routing and page views.
@@ -3336,12 +3310,12 @@ const NP = {
       $('#npTitle').textContent = '還沒有播放歌曲';
       $('#npTrans').textContent = '';
       $('#npArtist').textContent = '';
-      setCover($('#npCover'), null);
+      $('#npCover').removeAttribute('src');
       $('#npBg').removeAttribute('src');
       $('#npLike').hidden = true;
       return;
     }
-    setCover($('#npCover'), s.id);
+    $('#npCover').src = thumb(s.id, 'hq');
     $('#npBg').src = thumb(s.id, 'hq');
     const t = $('#npTitle');
     t.textContent = s.title;
@@ -4135,6 +4109,7 @@ const App = {
     this.queueChanged();
     Lyrics.load(id);
     setMediaSession(s);
+    $('#miniVideo').hidden = !S().showVideo || !id;
     if (Router.cur && Router.cur.name === 'home') rerender();
   },
   onPlaying() {
@@ -4227,7 +4202,6 @@ function npMenu(anchor) {
     { label: '播放速度', icon: 'gauge', hint: `${Player.rate || 1}×`, sub: speedItems },
     PiP.supported() ? { label: '子母畫面歌詞', icon: 'pip', run: () => PiP.open() } : null,
     { sep: true },
-    s ? { label: Dock.shown ? '隱藏 YouTube 播放器' : '暫時顯示 YouTube 播放器', icon: 'video', hint: Dock.shown ? '' : '跳過廣告用', run: () => Dock.toggle() } : null,
     s ? { label: '在 YouTube 開啟', icon: 'external', run: () => window.open(ytWatch(id), '_blank', 'noopener') } : null,
   ], anchor);
 }
@@ -4355,8 +4329,7 @@ const Actions = {
     Store.save();
     rerender();
   },
-  'cover-hide': () => { S().showCover = false; Store.save(); updateMiniCover(Queue.current()); toast('已隱藏側欄封面，可在設定重新開啟'); },
-  'dock-hide': () => Dock.set(false),
+  'video-hide': () => { S().showVideo = false; Store.save(); $('#miniVideo').hidden = true; toast('已隱藏側欄影片，可在設定重新開啟'); },
   'add-from-search': () => openAdd(Search.q, { autostart: true }),
   'search-yt': () => runYouTubeSearch(),
   'yt-play': ({ el }) => { ensureFromResult(el.dataset.yt); Queue.playNow(el.dataset.yt); },
@@ -4615,7 +4588,7 @@ function openSettings() {
         ${sw('stLyTrans', st.lyricTrans, '逐句翻譯歌詞', '在每一句歌詞下方顯示翻譯（原文仍是主要文字）')}
       </div>
       <div class="set-sec"><h3>播放</h3>
-        ${sw('stCover', st.showCover, '在側欄顯示正在播放的封面', '關閉後只在播放列顯示小封面')}
+        ${sw('stVideo', st.showVideo, '在側欄顯示影片', '正在播放畫面裡一定會顯示影片')}
       </div>
       <div class="set-sec"><h3>YouTube Data API（選用）</h3>
         <label class="field"><span>API 金鑰</span><input class="input" id="stKey" type="password" value="${esc(st.apiKey)}" placeholder="AIza…" autocomplete="off" spellcheck="false"></label>
@@ -4631,7 +4604,7 @@ function openSettings() {
           <button class="btn sm btn-danger" type="button" data-x="reset">清除所有資料</button>
         </div>
       </div>
-      <p class="help">${APP.name} ${APP.version} · 歌詞來自 <a href="https://lrclib.net" target="_blank" rel="noopener">LRCLIB</a> · 音樂由 YouTube 播放</p>`,
+      <p class="help">${APP.name} ${APP.version} · 歌詞來自 <a href="https://lrclib.net" target="_blank" rel="noopener">LRCLIB</a> · 影片由 YouTube 播放</p>`,
     init: m => {
       const on = id => m.$('#' + id).checked;
       m.$('#stShowTrans').addEventListener('change', () => { S().showTrans = on('stShowTrans'); Store.save(); App.refreshAll(); });
@@ -4650,7 +4623,7 @@ function openSettings() {
       });
       m.$('#stAutoLy').addEventListener('change', () => { S().autoLyrics = on('stAutoLy'); Store.save(); });
       m.$('#stLyTrans').addEventListener('change', () => { S().lyricTrans = on('stLyTrans'); Store.save(); Lyrics.render(); if (S().lyricTrans) Lyrics.ensureTrans(); });
-      m.$('#stCover').addEventListener('change', () => { S().showCover = on('stCover'); Store.save(); updateMiniCover(Queue.current()); });
+      m.$('#stVideo').addEventListener('change', () => { S().showVideo = on('stVideo'); Store.save(); $('#miniVideo').hidden = !S().showVideo || !Player.id; });
       m.$('#stKey').addEventListener('change', () => { S().apiKey = m.$('#stKey').value.trim(); Store.save(); toast(S().apiKey ? '已儲存 API 金鑰' : '已移除 API 金鑰'); });
       m.el.addEventListener('click', async e => {
         const b = e.target.closest('[data-x]');
@@ -4783,6 +4756,7 @@ function frame() {
   const t = Player.time();
   Bar.time(t, Player.duration());
   Lyrics.tick(t);
+  syncDock();
   if (PiP.win) PiP.update();
   requestAnimationFrame(frame);
 }
@@ -5093,6 +5067,7 @@ function init() {
     Player.load(cur, Store.data.queue.pos || 0, false);
     NP.render();
     Lyrics.load(cur);
+    $('#miniVideo').hidden = !S().showVideo;
   } else {
     Bar.track(null);
     Lyrics.render();
