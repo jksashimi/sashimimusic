@@ -14,6 +14,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" id="fontCss" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<!-- Visitor statistics (GoatCounter, cookie-free). no_onload: the app counts once per visit itself, so the "don't count this browser" switch works -->
+<script data-goatcounter="https://sashimi.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 <style>
 /* サシミュージック — dark streaming shell in the Tidal manner.
    Layout: sidebar | scrolling main column | transport bar along the bottom.
@@ -545,6 +547,7 @@ body.paused .eq i { animation-play-state: paused; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 .modal { width: min(560px, 100%); max-height: min(88vh, 940px); display: flex; flex-direction: column; border-radius: 12px; background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 30px 100px rgba(0, 0, 0, .75); animation: pop .18s var(--ease); }
 .modal.wide { width: min(860px, 100%); }
+.modal:focus { outline: none; }
 .modal-head { display: flex; align-items: center; gap: 12px; padding: 18px 16px 8px 22px; }
 .modal-head h2 { flex: 1; min-width: 0; margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .modal-body { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow-y: auto; padding: 8px 22px 18px; }
@@ -574,6 +577,12 @@ body.paused .eq i { animation-play-state: paused; }
 .toggle-row .tl small { display: block; color: var(--fg-3); font-size: 12.5px; margin-top: 2px; }
 .toggle-row .select { width: auto; min-width: 150px; height: 36px; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 0; }
+.stat-row { display: flex; align-items: center; gap: 20px; padding: 12px 0 14px; border-bottom: 1px solid var(--line); }
+.stat { display: flex; flex-direction: column; flex: none; min-width: 120px; }
+.stat-num { font: 600 30px/1.1 var(--font-mono); letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--fg); }
+.stat-num.dim { color: var(--fg-3); }
+.stat-label { margin-top: 4px; font-size: 12px; letter-spacing: .08em; color: var(--fg-2); }
+.stat-row .help { flex: 1; min-width: 0; }
 .kbd-grid { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 18px; align-items: center; font-size: 13.5px; }
 .kbd-grid dt { display: flex; gap: 4px; }
 .kbd-grid dd { margin: 0; color: var(--fg-2); }
@@ -704,6 +713,7 @@ body.paused .eq i { animation-play-state: paused; }
   .modal-backdrop { place-items: end center; padding: 0; }
   .modal, .modal.wide { width: 100%; max-height: 92vh; border-radius: 14px 14px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
   .ed-row { grid-template-columns: 82px minmax(0, 1fr); }
+  .stat-row { flex-direction: column; align-items: flex-start; gap: 8px; }
   .ed-row .ed-nudge { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1685,7 +1695,7 @@ const Modal = {
   open({ title, body, foot = '', wide = false, cls = '', onKey = null, onClose = null, init = null, autoFocus = true }) {
     const back = document.createElement('div');
     back.className = 'modal-backdrop';
-    back.innerHTML = `<div class="modal${wide ? ' wide' : ''}${cls ? ' ' + cls : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    back.innerHTML = `<div class="modal${wide ? ' wide' : ''}${cls ? ' ' + cls : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}" tabindex="-1">
       <header class="modal-head"><h2>${esc(title)}</h2><button class="icon-btn" type="button" data-m="close" aria-label="關閉">${ic('x')}</button></header>
       <div class="modal-body">${body}</div>
       ${foot ? `<footer class="modal-foot">${foot}</footer>` : ''}
@@ -1703,7 +1713,7 @@ const Modal = {
     if (init) init(m);
     const f = m.el.querySelector('[autofocus]') || (autoFocus ? m.el.querySelector('.modal-body input:not([type=hidden]):not([type=checkbox]), .modal-body textarea') : null);
     if (f && !coarse()) f.focus();
-    else m.$('[data-m="close"]').focus({ preventScroll: true });
+    else m.el.focus({ preventScroll: true });
     return m;
   },
   close(m) {
@@ -2898,6 +2908,62 @@ const Dock = {
     d.setAttribute('aria-hidden', show ? 'false' : 'true');
   },
   toggle() { this.set(!this.shown); },
+};
+
+/* =====================================================================
+   Visitor statistics via GoatCounter (cookie-free).
+   One count per site open; switching pages inside the app does not count again.
+   Public total comes from the visitor-counter JSON (cached by GoatCounter for up to 4 hours).
+   ===================================================================== */
+
+const Stats = {
+  SITE: 'https://sashimi.goatcounter.com',
+  OPT_OUT_KEY: 'sashimusic:nocount',
+  counted: false,
+  cache: null,
+  pending: null,
+
+  optedOut() {
+    try { return localStorage.getItem(this.OPT_OUT_KEY) === '1'; } catch (e) { return false; }
+  },
+  setOptOut(on) {
+    try {
+      if (on) localStorage.setItem(this.OPT_OUT_KEY, '1');
+      else localStorage.removeItem(this.OPT_OUT_KEY);
+    } catch (e) { /* storage blocked: nothing to remember */ }
+  },
+
+  /* count.js loads asynchronously (and may be blocked by ad blockers), so wait for it briefly */
+  countOnce() {
+    if (this.counted || this.optedOut() || !/^https?:$/.test(location.protocol)) return;
+    let tries = 0;
+    const attempt = () => {
+      if (this.counted) return;
+      const gc = window.goatcounter;
+      if (gc && typeof gc.count === 'function') {
+        this.counted = true;
+        try { gc.count({ path: location.pathname || '/', title: APP.name }); } catch (e) { /* never break the player */ }
+        return;
+      }
+      if (++tries < 60) setTimeout(attempt, 250);
+    };
+    attempt();
+  },
+
+  /* Total visitors for the whole site; resolves to a number or throws (err.status for HTTP errors) */
+  total() {
+    if (this.cache && Date.now() - this.cache.at < 10 * 60 * 1000) return Promise.resolve(this.cache.n);
+    if (this.pending) return this.pending;
+    this.pending = Net.json(`${this.SITE}/counter/TOTAL.json`, {}, 8000)
+      .then(j => {
+        const n = parseInt(String((j && j.count) || '').replace(/[^\d]/g, ''), 10);
+        if (!Number.isFinite(n)) throw new Error('unexpected response');
+        this.cache = { n, at: Date.now() };
+        return n;
+      })
+      .finally(() => { this.pending = null; });
+    return this.pending;
+  },
 };
 
 /* =====================================================================
@@ -4603,7 +4669,14 @@ function openSettings() {
   Modal.open({
     title: '設定',
     autoFocus: false,
-    body: `<div class="set-sec"><h3>歌名翻譯</h3>
+    body: `<div class="set-sec"><h3>網站統計</h3>
+        <div class="stat-row">
+          <div class="stat"><span class="stat-num dim" id="stTotal">…</span><span class="stat-label">累計訪客</span></div>
+          <p class="help" id="stTotalNote">數字最多延遲 4 小時更新。本站使用 <a href="https://www.goatcounter.com" target="_blank" rel="noopener">GoatCounter</a> 統計訪客，不使用 cookie。</p>
+        </div>
+        ${sw('stNoCount', Stats.optedOut(), '不計算這個瀏覽器', '打開後，從這個瀏覽器開啟網站不會計入訪客數，適合站長自己的裝置')}
+      </div>
+      <div class="set-sec"><h3>歌名翻譯</h3>
         ${sw('stShowTrans', st.showTrans, '顯示歌名翻譯', '在原文歌名下方顯示譯名')}
         ${sw('stAutoTrans', st.autoTrans, '自動翻譯新加入的歌曲', '使用 Google 翻譯的公開網頁端點，失敗時改用 MyMemory')}
         <div class="toggle-row"><span class="tl"><b>翻譯成</b><small>變更後會在背景重新翻譯所有歌名</small></span>
@@ -4651,6 +4724,20 @@ function openSettings() {
       m.$('#stAutoLy').addEventListener('change', () => { S().autoLyrics = on('stAutoLy'); Store.save(); });
       m.$('#stLyTrans').addEventListener('change', () => { S().lyricTrans = on('stLyTrans'); Store.save(); Lyrics.render(); if (S().lyricTrans) Lyrics.ensureTrans(); });
       m.$('#stCover').addEventListener('change', () => { S().showCover = on('stCover'); Store.save(); updateMiniCover(Queue.current()); });
+      m.$('#stNoCount').addEventListener('change', () => {
+        Stats.setOptOut(on('stNoCount'));
+        toast(on('stNoCount') ? '之後從這個瀏覽器開啟網站，不會計入訪客數' : '之後從這個瀏覽器開啟網站，會計入訪客數');
+      });
+      const totalEl = m.$('#stTotal');
+      Stats.total().then(n => {
+        totalEl.textContent = n.toLocaleString('zh-TW');
+        totalEl.classList.remove('dim');
+      }).catch(err => {
+        totalEl.textContent = '—';
+        m.$('#stTotalNote').textContent = err && (err.status === 403 || err.status === 404)
+          ? '暫時讀不到總數：可能還沒有任何訪客，或 GoatCounter 尚未開啟公開訪客數。'
+          : '暫時讀不到總數：連線失敗，或被擋廣告外掛擋下。';
+      });
       m.$('#stKey').addEventListener('change', () => { S().apiKey = m.$('#stKey').value.trim(); Store.save(); toast(S().apiKey ? '已儲存 API 金鑰' : '已移除 API 金鑰'); });
       m.el.addEventListener('click', async e => {
         const b = e.target.closest('[data-x]');
@@ -5110,6 +5197,7 @@ function init() {
       if (s && s.title !== s.id && (s.trans == null || s.transTl !== S().tl)) TransQ.push(id);
     });
   }
+  Stats.countOnce();
 }
 
 init();
