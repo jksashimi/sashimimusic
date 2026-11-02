@@ -1,4 +1,4 @@
-<img width="697" height="171" alt="image" src="https://github.com/user-attachments/assets/3c501f4f-f06a-4ffe-9d94-0e6ce7137efd" /># sashimimusic
+# sashimimusic
 
 update #1.3 加入訪客量累積功能(不知道有沒有用)
 <img width="697" height="171" alt="image" src="https://github.com/user-attachments/assets/497dfaa8-d98d-46f1-a0dc-a27ab2c09fec" />
