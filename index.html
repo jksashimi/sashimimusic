@@ -402,6 +402,11 @@ body.paused .eq i { animation-play-state: paused; }
 .badge { position: absolute; top: -2px; right: -6px; padding: 2px 4px; border-radius: 4px; background: var(--accent); color: var(--accent-ink); font: 600 9.5px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
 .speed-btn { font: 600 12px var(--font-mono); width: 40px; border-radius: 6px; }
 .speed-btn.on { color: var(--accent); }
+.bpm-btn { position: relative; width: auto; min-width: 36px; padding: 0 6px; border-radius: 6px; font: 600 12.5px var(--font-mono); font-variant-numeric: tabular-nums; }
+.bpm-btn.has-val { color: var(--fg); }
+.bpm-btn.on { color: var(--accent); }
+.bpm-btn.busy::after { content: ""; position: absolute; top: 4px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 .volume { display: flex; align-items: center; gap: 4px; }
 .volume .slider { flex: none; width: 96px; }
 
@@ -428,6 +433,10 @@ body.paused .eq i { animation-play-state: paused; }
 .np-trans { margin-top: 6px; font-size: 17px; color: var(--fg-2); overflow-wrap: anywhere; }
 .np-artist { margin-top: 8px; font-size: 15px; color: var(--fg-2); text-align: left; }
 .np-artist:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+.np-bpm { display: inline-flex; align-items: center; gap: 6px; height: 26px; margin-top: 10px; padding: 0 10px 0 8px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: var(--fg-2); font: 500 12px var(--font-mono); font-variant-numeric: tabular-nums; transition: background .15s, color .15s; }
+.np-bpm:hover { background: rgba(255, 255, 255, .14); color: var(--fg); }
+.np-bpm .i { width: 14px; height: 14px; }
+.np-bpm.busy .i { color: var(--accent); animation: blink 1.2s ease-in-out infinite; }
 .np-right { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .np-tabs { display: flex; gap: 26px; border-bottom: 1px solid rgba(255, 255, 255, .1); }
 .np-tabs button { position: relative; padding: 12px 0 11px; color: var(--fg-2); font-weight: 600; transition: color .15s; }
@@ -555,8 +564,8 @@ body.paused .eq i { animation-play-state: paused; }
 .modal-foot .grow { flex: 1; }
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .field > span { font-size: 12.5px; color: var(--fg-2); font-weight: 500; }
-.field-row { display: flex; gap: 8px; align-items: flex-end; }
-.field-row .field { flex: 1; }
+.field-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.field-row .field { flex: 1; min-width: 120px; }
 .help { margin: 0; font-size: 12.5px; color: var(--fg-3); line-height: 1.6; }
 .help a { color: var(--fg-2); text-decoration: underline; text-underline-offset: 2px; }
 .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
@@ -621,6 +630,38 @@ body.paused .eq i { animation-play-state: paused; }
 .ed-row .ed-nudge button { height: 26px; padding: 0 8px; border-radius: 4px; background: var(--surface-2); font: 12px var(--font-mono); }
 .ed-row .ed-nudge button:hover { background: var(--surface-3); }
 
+/* ---------- BPM ---------- */
+.help-list { margin: 0; padding-left: 1.2em; color: var(--fg-2); font-size: 13px; line-height: 1.7; }
+.bpm-row { flex-wrap: nowrap; }
+.bpm-row .field-bpm { flex: 0 1 220px; min-width: 0; }
+.tap-pad {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: min(220px, 70vw); aspect-ratio: 1; margin: 6px auto 4px; border-radius: 50%;
+  background: var(--bg); box-shadow: inset 0 0 0 2px var(--line-2); color: var(--fg);
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  transition: box-shadow .12s, background .12s;
+}
+.tap-pad:hover { box-shadow: inset 0 0 0 2px var(--fg-3); }
+.tap-pad.hit { animation: tapHit .18s ease-out; }
+@keyframes tapHit { from { background: var(--accent-soft); box-shadow: inset 0 0 0 3px var(--accent); } to { background: var(--bg); } }
+.tap-bpm { font: 700 52px/1 var(--font-mono); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.tap-n { font-size: 12.5px; color: var(--fg-3); }
+.tap-tools { display: flex; justify-content: center; gap: 8px; }
+.batch-panel {
+  position: fixed; z-index: 80; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(var(--bottom-ui) + 16px);
+  width: min(340px, calc(100vw - 32px)); padding: 14px 14px 12px 16px; border-radius: var(--r);
+  background: var(--surface-2); border: 1px solid var(--line-2); box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
+  display: flex; flex-direction: column; gap: 8px; animation: pop .18s var(--ease);
+}
+.bp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bp-head b { font-weight: 600; }
+.bp-count { font: 12px var(--font-mono); color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.bp-song { font-size: 13px; color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bp-bar { height: 4px; border-radius: 2px; background: var(--surface-3); overflow: hidden; }
+.bp-bar i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.bp-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--fg-3); }
+body.batching .playerbar .pb-center, body.batching .playerbar .pb-right > :not(#btnBpm) { opacity: .35; pointer-events: none; }
+
 /* ---------- Toasts ---------- */
 .toasts { position: fixed; left: 50%; bottom: calc(var(--bottom-ui) + 16px); transform: translateX(-50%); z-index: 300; display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(560px, calc(100% - 32px)); pointer-events: none; }
 .toast { pointer-events: auto; display: flex; align-items: center; gap: 16px; max-width: 100%; padding: 11px 14px 11px 16px; border-radius: var(--r); background: var(--fg); color: #000; font-size: 13.5px; font-weight: 500; box-shadow: 0 14px 40px rgba(0, 0, 0, .55); animation: toastIn .22s var(--ease); }
@@ -635,6 +676,8 @@ body.paused .eq i { animation-play-state: paused; }
 @media (max-width: 1180px) {
   .thead, .trow { grid-template-columns: 36px minmax(0, 4fr) minmax(0, 2fr) 36px 52px 36px; }
   .thead .c-src, .trow .c-src, .thead .c-extra, .trow .c-extra { display: none; }
+  .tlist.with-extra .thead, .tlist.with-extra .trow { grid-template-columns: 36px minmax(0, 4fr) minmax(0, 2fr) minmax(0, 1fr) 36px 52px 36px; }
+  .tlist.with-extra .thead .c-extra, .tlist.with-extra .trow .c-extra { display: block; }
   .speed-btn, #btnSleep { display: none; }
 }
 @media (max-width: 980px) {
@@ -662,6 +705,10 @@ body.paused .eq i { animation-play-state: paused; }
   .thead { display: none; }
   .trow { grid-template-columns: minmax(0, 1fr) 36px; column-gap: 4px; padding: 0 4px 0 12px; min-height: 64px; }
   .trow .c-idx, .trow .c-artist, .trow .c-src, .trow .c-extra, .trow .c-like, .trow .c-dur { display: none; }
+  .tlist.with-extra .trow { grid-template-columns: minmax(0, 1fr) 36px; }
+  .tlist.with-extra .trow .c-extra { display: none; }
+  .bpm-row .field-bpm { flex: 1 1 auto; }
+  .batch-panel { left: 8px; right: 8px; width: auto; bottom: calc(var(--bottom-ui) + 8px); }
   .trow .c-more .icon-btn { opacity: 1; }
   .m-only { display: block; }
   .resume { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
@@ -772,6 +819,7 @@ body.paused .eq i { animation-play-state: paused; }
   <symbol id="i-minus-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M8.5 12h7"/></g></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 11v5"/></g><circle cx="12" cy="8" r="1.1" fill="currentColor"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></g></symbol>
+  <symbol id="i-metronome" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.8h4l3.6 16.2H6.4z"/><path d="M7.5 15.5h9"/><path d="m12 15.5 4.6-8.3"/></g><circle cx="15.4" cy="9.4" r="1.4" fill="currentColor"/></symbol>
   <symbol id="i-keyboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M7 10.5h.01M10.3 10.5h.01M13.7 10.5h.01M17 10.5h.01M8 14h8"/></g></symbol>
 </svg>
 
@@ -852,6 +900,7 @@ body.paused .eq i { animation-play-state: paused; }
       </div>
     </div>
     <div class="pb-right">
+      <button class="icon-btn bpm-btn" id="btnBpm" type="button" data-act="bpm-menu" aria-label="BPM" title="BPM"><svg class="i" aria-hidden="true"><use href="#i-metronome"></use></svg></button>
       <button class="icon-btn" id="btnLyrics" type="button" data-act="np-lyrics" aria-label="歌詞" title="歌詞 (L)"><svg class="i" aria-hidden="true"><use href="#i-mic"></use></svg></button>
       <button class="icon-btn" id="btnQueue" type="button" data-act="queue" aria-label="播放佇列" title="播放佇列 (Q)"><svg class="i" aria-hidden="true"><use href="#i-queue"></use></svg></button>
       <button class="icon-btn has-badge" id="btnSleep" type="button" data-act="sleep-menu" aria-label="睡眠定時器" title="睡眠定時器"><svg class="i" aria-hidden="true"><use href="#i-moon"></use></svg><span class="badge" id="sleepBadge" hidden></span></button>
@@ -888,6 +937,7 @@ body.paused .eq i { animation-play-state: paused; }
           <h2 class="np-title" id="npTitle"></h2>
           <div class="np-trans" id="npTrans"></div>
           <button class="np-artist" id="npArtist" type="button" data-act="artist"></button>
+          <div><button class="np-bpm" id="npBpm" type="button" data-act="bpm-menu" hidden></button></div>
         </div>
         <button class="icon-btn like" id="npLike" type="button" data-act="like-current" aria-label="收藏"><svg class="i" aria-hidden="true"><use href="#i-heart"></use></svg></button>
       </div>
@@ -1302,6 +1352,283 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 /* =====================================================================
+   Tempo (BPM) estimation — pure functions, no DOM. The Node tests load this file too.
+
+   Input: mono PCM (Float32Array) at a low sample rate (about 11–12 kHz).
+   1. Onset envelope: log-magnitude spectral flux, local mean removed, half-wave rectified.
+   2. Autocorrelation of the envelope; the strongest lag in the tempo range is the base pulse.
+   3. Metrical level: from the base pulse, try ×2 / ÷2 levels and keep the fastest one where
+      even the weaker of two alternating pulses is still a clear onset. In a pop beat every
+      quarter note has a kick or a snare, while every other eighth note is only a hi-hat.
+   4. Sub-frame refinement from several autocorrelation peaks (k·period), so the result is
+      accurate to a fraction of a BPM.
+   ===================================================================== */
+
+/* A named factory so the same source can be started inside a Web Worker (see Bpm.compute) */
+function TempoFactory() {
+  const FRAME = 1024;
+  const HOP = 64;
+  const MIN_BPM = 55;
+  const MAX_BPM = 210;
+
+  let twiddle = null;
+  function fft(re, im) {
+    const n = re.length;
+    if (!twiddle || twiddle.n !== n) {
+      const c = new Float64Array(n / 2), s = new Float64Array(n / 2);
+      for (let k = 0; k < n / 2; k++) { c[k] = Math.cos(-2 * Math.PI * k / n); s[k] = Math.sin(-2 * Math.PI * k / n); }
+      twiddle = { n, c, s };
+    }
+    for (let i = 1, j = 0; i < n; i++) {
+      let bit = n >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) {
+        let t = re[i]; re[i] = re[j]; re[j] = t;
+        t = im[i]; im[i] = im[j]; im[j] = t;
+      }
+    }
+    for (let len = 2; len <= n; len <<= 1) {
+      const half = len >> 1, step = n / len;
+      for (let i = 0; i < n; i += len) {
+        for (let k = 0; k < half; k++) {
+          const wr = twiddle.c[k * step], wi = twiddle.s[k * step];
+          const a = i + k, b = a + half;
+          const tr = re[b] * wr - im[b] * wi, ti = re[b] * wi + im[b] * wr;
+          re[b] = re[a] - tr; im[b] = im[a] - ti;
+          re[a] += tr; im[a] += ti;
+        }
+      }
+    }
+  }
+
+  /* Onset strength envelope; returns { env, fs } or null when the audio is too short or silent */
+  function envelope(pcm, sr) {
+    const n = Math.floor((pcm.length - FRAME) / HOP) + 1;
+    if (n < 300) return null;
+    let sq = 0;
+    for (let i = 0; i < pcm.length; i++) sq += pcm[i] * pcm[i];
+    const rms = Math.sqrt(sq / pcm.length);
+    if (rms < 1e-5) return null;
+    const gain = 0.1 / rms; // loudness-independent log compression
+    const win = new Float64Array(FRAME);
+    for (let i = 0; i < FRAME; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / FRAME);
+    // Log-spaced bands (40 Hz – 5 kHz) so a kick drum counts as much as a hi-hat;
+    // summing linear FFT bins would let broadband cymbals dominate the envelope.
+    const binHz = sr / FRAME;
+    const kTop = Math.min(FRAME / 2, Math.floor(5000 / binHz));
+    const edges = [];
+    const NB = 36;
+    for (let b = 0; b <= NB; b++) {
+      const k = Math.round((40 * Math.pow(5000 / 40, b / NB)) / binHz);
+      edges.push(Math.min(kTop, Math.max(1, k)));
+    }
+    const bands = [];
+    for (let b = 0; b < NB; b++) {
+      const lo = b === 0 ? edges[0] : Math.max(edges[b], bands[b - 1][1] + 1);
+      const hi = Math.max(lo, edges[b + 1]);
+      if (lo <= kTop) bands.push([lo, Math.min(hi, kTop)]);
+    }
+    const re = new Float64Array(FRAME), im = new Float64Array(FRAME);
+    let prev = new Float64Array(bands.length), cur = new Float64Array(bands.length);
+    const raw = new Float64Array(n);
+    for (let t = 0; t < n; t++) {
+      const off = t * HOP;
+      for (let i = 0; i < FRAME; i++) { re[i] = pcm[off + i] * win[i] * gain; im[i] = 0; }
+      fft(re, im);
+      let flux = 0;
+      for (let b = 0; b < bands.length; b++) {
+        const [lo, hi] = bands[b];
+        let p = 0;
+        for (let k = lo; k <= hi; k++) p += re[k] * re[k] + im[k] * im[k];
+        const m = Math.log1p(10 * Math.sqrt(p / (hi - lo + 1)));
+        cur[b] = m;
+        const d = m - prev[b];
+        if (d > 0) flux += d;
+      }
+      raw[t] = t === 0 ? 0 : flux / bands.length;
+      const tmp = prev; prev = cur; cur = tmp;
+    }
+    const fs = sr / HOP;
+    const w = Math.max(3, Math.round(0.25 * fs));
+    const pre = new Float64Array(n + 1);
+    for (let t = 0; t < n; t++) pre[t + 1] = pre[t] + raw[t];
+    const env = new Float64Array(n);
+    let peak = 0;
+    for (let t = 0; t < n; t++) {
+      const a = Math.max(0, t - w), b = Math.min(n, t + w + 1);
+      const v = raw[t] - (pre[b] - pre[a]) / (b - a);
+      env[t] = v > 0 ? v : 0;
+      if (env[t] > peak) peak = env[t];
+    }
+    if (peak <= 0) return null;
+    for (let t = 0; t < n; t++) env[t] /= peak;
+    return { env, fs };
+  }
+
+  function autocorr(x, maxLag) {
+    const n = x.length;
+    let mean = 0;
+    for (let i = 0; i < n; i++) mean += x[i];
+    mean /= n;
+    const y = new Float64Array(n);
+    for (let i = 0; i < n; i++) y[i] = x[i] - mean;
+    const r = new Float64Array(maxLag + 1);
+    for (let L = 0; L <= maxLag; L++) {
+      let s = 0;
+      for (let i = 0, m = n - L; i < m; i++) s += y[i] * y[i + L];
+      r[L] = s / (n - L);
+    }
+    const r0 = r[0] || 1;
+    for (let L = 0; L <= maxLag; L++) r[L] /= r0;
+    return r;
+  }
+
+  /* Highest envelope value within ±2 frames of a (fractional) position */
+  function near(env, t) {
+    const c = Math.round(t);
+    let m = 0;
+    for (let i = c - 2; i <= c + 2; i++) if (i >= 0 && i < env.length && env[i] > m) m = env[i];
+    return m;
+  }
+
+  /* Pulse strength at the best phase, plus the strengths of alternate pulses */
+  function pulse(env, period) {
+    const steps = Math.max(8, Math.min(96, Math.round(period)));
+    let best = -1, phase = 0;
+    for (let p = 0; p < steps; p++) {
+      const ph = (p * period) / steps;
+      let s = 0, c = 0;
+      for (let t = ph; t < env.length; t += period) { s += near(env, t); c++; }
+      if (c && s / c > best) { best = s / c; phase = ph; }
+    }
+    let e = 0, ec = 0, o = 0, oc = 0, k = 0;
+    for (let t = phase; t < env.length; t += period, k++) {
+      const v = near(env, t);
+      if (k % 2) { o += v; oc++; } else { e += v; ec++; }
+    }
+    const even = ec ? e / ec : 0, odd = oc ? o / oc : 0;
+    const balance = Math.max(even, odd) > 0 ? Math.min(even, odd) / Math.max(even, odd) : 0;
+    return { mean: best, weaker: Math.min(even, odd), balance };
+  }
+
+  /* Parabolic peak refinement around an integer lag */
+  function refinePeak(r, L) {
+    if (L <= 0 || L >= r.length - 1) return L;
+    const a = r[L - 1], b = r[L], c = r[L + 1];
+    const den = a - 2 * b + c;
+    if (den >= 0) return L;
+    const d = 0.5 * (a - c) / den;
+    return Math.abs(d) < 1 ? L + d : L;
+  }
+
+  function refinePeriod(r, period) {
+    let num = 0, den = 0;
+    for (let k = 1; k <= 8; k++) {
+      const target = k * period;
+      const span = Math.max(2, Math.round(0.04 * target));
+      const lo = Math.max(1, Math.floor(target - span)), hi = Math.min(r.length - 2, Math.ceil(target + span));
+      if (lo >= hi) break;
+      let best = lo;
+      for (let L = lo + 1; L <= hi; L++) if (r[L] > r[best]) best = L;
+      if (best === lo || best === hi || r[best] <= 0) continue; // not a real peak
+      const p = refinePeak(r, best);
+      const wgt = r[best];
+      num += wgt * k * p;
+      den += wgt * k * k;
+    }
+    return den > 0 ? num / den : period;
+  }
+
+  /**
+   * Estimate the tempo of mono PCM.
+   * @returns {{ bpm:number, confidence:number, candidates:number[] } | null}
+   */
+  function estimate(pcm, sr) {
+    const e = envelope(pcm, sr);
+    if (!e) return null;
+    const { env, fs } = e;
+    const lagMin = Math.floor((60 * fs) / MAX_BPM);
+    const lagMax = Math.ceil((60 * fs) / MIN_BPM);
+    const maxLag = Math.min(env.length - 2, lagMax * 4);
+    if (maxLag <= lagMax) return null;
+    const r = autocorr(env, maxLag);
+
+    // Base pulse: strongest local maximum in the tempo range
+    let base = -1;
+    for (let L = lagMin; L <= lagMax; L++) {
+      if (r[L] > r[L - 1] && r[L] >= r[L + 1] && (base < 0 || r[L] > r[base])) base = L;
+    }
+    if (base < 0) return null;
+    const basePeriod = refinePeak(r, base);
+
+    // Metrical ladder within the tempo range, fastest first
+    const levels = [];
+    for (const f of [0.25, 0.5, 1, 2, 4]) {
+      const p = basePeriod * f;
+      const bpm = (60 * fs) / p;
+      if (bpm >= MIN_BPM && bpm <= MAX_BPM) levels.push({ p, bpm, ...pulse(env, p) });
+    }
+    levels.sort((a, b) => a.p - b.p);
+    const strongest = Math.max(...levels.map(l => l.mean));
+    let pick = levels.find(l => l.weaker >= 0.4 * strongest);
+    if (!pick) pick = levels.find(l => Math.abs(l.p - basePeriod) < 1e-6) || levels[0];
+
+    const period = refinePeriod(r, pick.p);
+    const bpm = (60 * fs) / period;
+
+    // Confidence: how far the chosen periodicity stands above the rest of the range
+    let mean = 0, cnt = 0;
+    for (let L = lagMin; L <= lagMax; L++) { mean += r[L]; cnt++; }
+    mean /= cnt;
+    let v = 0;
+    for (let L = lagMin; L <= lagMax; L++) v += (r[L] - mean) * (r[L] - mean);
+    const sd = Math.sqrt(v / cnt) || 1e-9;
+    const at = r[Math.round(Math.min(maxLag, period))] || 0;
+    const z = (at - mean) / sd;
+    const clarity = Math.min(1, pick.weaker / (0.6 * strongest)); // weak alternate pulses → octave doubt
+    const confidence = Math.max(0, Math.min(1, (z - 1) / 3)) * (0.6 + 0.4 * clarity);
+
+    return {
+      bpm: Math.round(bpm * 10) / 10,
+      confidence: Math.round(confidence * 100) / 100,
+      candidates: levels.map(l => Math.round(l.bpm * 10) / 10),
+    };
+  }
+
+  /**
+   * Tap tempo: least-squares beat period through tap times (ms).
+   * Needs at least 4 taps; returns BPM with one decimal, or 0.
+   */
+  function fromTaps(times) {
+    const n = times.length;
+    if (n < 4) return 0;
+    let sx = 0, sy = 0, sxx = 0, sxy = 0;
+    for (let i = 0; i < n; i++) { sx += i; sy += times[i]; sxx += i * i; sxy += i * times[i]; }
+    const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+    if (!(slope > 0)) return 0;
+    return Math.round((60000 / slope) * 10) / 10;
+  }
+
+  /* Average-of-D decimation, identical to the capture worklet (used by tests) */
+  function decimate(pcm, d) {
+    const out = new Float32Array(Math.floor(pcm.length / d));
+    for (let i = 0; i < out.length; i++) {
+      let s = 0;
+      for (let k = 0; k < d; k++) s += pcm[i * d + k];
+      out[i] = s / d;
+    }
+    return out;
+  }
+
+  return { estimate, fromTaps, decimate, envelope, MIN_BPM, MAX_BPM };
+}
+
+const Tempo = TempoFactory();
+
+if (typeof module !== 'undefined' && module.exports) module.exports = Tempo;
+
+/* =====================================================================
    DOM helpers, storage (localStorage + IndexedDB), library model,
    toasts, menus and dialogs.
    ===================================================================== */
@@ -1399,7 +1726,7 @@ const Store = {
       history: [],
       settings: {
         tl: 'zh-TW', showTrans: true, autoTrans: true, autoLyrics: true, lyricTrans: false,
-        apiKey: '', volume: 80, muted: false, rate: 1, showCover: true, lyricScale: 1, sort: 'added',
+        apiKey: '', volume: 80, muted: false, rate: 1, showCover: true, lyricScale: 1, sort: 'added', autoBpm: false,
       },
       queue: { ids: [], ordered: [], index: -1, shuffle: false, repeat: 'off', ctx: null, pos: 0 },
     };
@@ -2160,22 +2487,34 @@ const Player = {
     Bar.playState();
   },
   play() {
+    if (batchBlocks()) return;
     if (!this.ready) { if (this.pending) this.pending.autoplay = true; return; }
     if (!this.id) return;
     this.yt.playVideo();
   },
   pause() { if (this.ready) this.yt.pauseVideo(); },
+  /* Unload the video entirely (used after a batch when nothing was playing before) */
+  stop() {
+    if (this.ready && this.yt.stopVideo) this.yt.stopVideo();
+    this.id = null;
+    this.state = -1;
+    this.raw = 0;
+    Bar.playState();
+  },
   toggle() {
+    if (batchBlocks()) return;
     if (!this.id) {
       const q = Store.data.queue;
       if (q.ids.length) { if (q.index < 0) q.index = 0; startCurrent(true); }
       else if (Store.data.order.length) playList(Store.data.order, 0, { type: 'songs', name: '歌曲' });
       return;
     }
-    if (this.isPlaying()) this.pause(); else this.play();
+    if (this.isPlaying()) this.pause();
+    else { Bpm.onUserPlay(this.id); this.play(); }
   },
   isPlaying() { return this.state === 1 || this.state === 3; },
   seek(t) {
+    if (Batch.running) return;
     if (!this.ready || !this.id) return;
     const d = this.duration();
     t = Math.max(0, d ? Math.min(t, d - 0.25) : t);
@@ -2315,7 +2654,7 @@ const Queue = {
   },
   next(auto = false) {
     const q = this.q;
-    if (!q.ids.length) return;
+    if (!q.ids.length || batchBlocks()) return;
     if (auto && q.repeat === 'one') { Player.seek(0); Player.play(); return; }
     let i = q.index + 1;
     if (i >= q.ids.length) {
@@ -2332,25 +2671,31 @@ const Queue = {
       }
     }
     q.index = i;
-    startCurrent(true);
+    if (auto) this.auto(() => startCurrent(true)); else startCurrent(true);
+  },
+  /* Marks playback the app starts by itself, so it never triggers the BPM share prompt */
+  autoAdvancing: false,
+  auto(fn) {
+    this.autoAdvancing = true;
+    try { fn(); } finally { this.autoAdvancing = false; }
   },
   prev() {
     const q = this.q;
-    if (!q.ids.length) return;
+    if (!q.ids.length || batchBlocks()) return;
     if (Player.time() > 3 || (q.index === 0 && q.repeat !== 'all')) { Player.seek(0); return; }
     q.index = q.index > 0 ? q.index - 1 : q.ids.length - 1;
     startCurrent(true);
   },
   playAt(i) {
     const q = this.q;
-    if (i < 0 || i >= q.ids.length) return;
+    if (i < 0 || i >= q.ids.length || batchBlocks()) return;
     q.index = i;
     startCurrent(true);
   },
   /* Play a song right away without throwing away the rest of the queue */
   playNow(id) {
     const q = this.q;
-    if (!song(id)) return;
+    if (!song(id) || batchBlocks()) return;
     if (q.index < 0 || !q.ids.length) { playSingle(id); return; }
     if (q.ids[q.index] === id) { if (Player.id === id) Player.play(); else startCurrent(true); return; }
     q.ids.splice(q.index + 1, 0, id);
@@ -2362,8 +2707,8 @@ const Queue = {
   /* Move past a track that failed to play (ignores repeat-one) */
   skip() {
     const q = this.q;
-    if (q.index + 1 < q.ids.length) { q.index++; startCurrent(true); }
-    else if (q.repeat === 'all' && q.ids.length > 1) { q.index = 0; startCurrent(true); }
+    if (q.index + 1 < q.ids.length) { q.index++; this.auto(() => startCurrent(true)); }
+    else if (q.repeat === 'all' && q.ids.length > 1) { q.index = 0; this.auto(() => startCurrent(true)); }
   },
   addNext(ids) {
     const q = this.q;
@@ -2447,7 +2792,7 @@ const Queue = {
 
 function playList(ids, start = 0, ctx = null, opts = {}) {
   ids = ids.filter(id => song(id));
-  if (!ids.length) return;
+  if (!ids.length || batchBlocks()) return;
   if (opts.shuffle) start = Math.floor(Math.random() * ids.length);
   if (Queue.set(ids, start, ctx, opts.shuffle)) { Bar.modes(); startCurrent(true); }
 }
@@ -2461,10 +2806,19 @@ function playSingle(id) {
 function startCurrent(autoplay = true, at = 0) {
   const id = Queue.current();
   if (!id) return;
+  if (autoplay && batchBlocks()) return;
+  if (autoplay) Bpm.onUserPlay(id); // first play of a visit may ask to share tab audio
   Store.data.queue.pos = at;
   Player.load(id, at, autoplay);
   App.onTrackChange(id);
   Store.save();
+}
+
+/* While a BPM batch owns the player, normal playback waits */
+function batchBlocks() {
+  if (!Batch.running) return false;
+  toast('批次偵測 BPM 進行中，先停止批次才能播放');
+  return true;
 }
 
 function pushHistory(id) {
@@ -2548,6 +2902,22 @@ const Bar = {
     like.hidden = false;
     setLikeBtn(like, Lib.isLiked(s.id));
     this.title();
+    this.bpm();
+  },
+  /* BPM button: shows the current song's BPM, or a metronome when it has none */
+  bpm() {
+    const b = $('#btnBpm');
+    if (!b) return;
+    const s = song(Queue.current());
+    const busy = !!(s && !s.bpm && Bpm.live && ((LiveBpm.col && LiveBpm.col.id === s.id && LiveBpm.col.have > 0) || LiveBpm.busy === s.id));
+    b.classList.toggle('on', !!Bpm.live);
+    b.classList.toggle('busy', busy);
+    b.classList.toggle('has-val', !!(s && s.bpm));
+    const html = s && s.bpm ? `<span class="bpm-val">${fmtBpm(s.bpm)}</span>` : ic('metronome');
+    if (b.innerHTML !== html) b.innerHTML = html;
+    const label = s && s.bpm ? `BPM ${fmtBpm(s.bpm)}（${bpmSrcLabel(s)}）` : Bpm.live ? 'BPM：偵測中' : 'BPM';
+    b.title = label;
+    b.setAttribute('aria-label', label);
   },
   title() {
     const s = song(Player.id || Queue.current());
@@ -2650,7 +3020,7 @@ function trackRow(s, i, o = {}) {
     <div class="c-title"><span class="thumb">${img(s.id)}</span><div class="tt">
       <div class="t1">${titleBits(s)}</div>
       ${tr ? `<div class="t2"${tlAttr(S().tl)}>${esc(tr)}</div>` : ''}
-      <div class="t3 m-only">${esc(s.artist)}</div>
+      <div class="t3 m-only">${esc(s.artist)}${o.mobileExtra && o.mobileExtra(s) ? ` · ${esc(o.mobileExtra(s))}` : ''}</div>
     </div></div>
     <div class="c-artist"><button class="link" type="button" data-act="artist" data-v="${esc(s.artist)}">${esc(s.artist)}</button></div>
     <div class="c-src">${esc(s.album || s.channel || '')}</div>
@@ -2665,7 +3035,7 @@ function trackList(ids, key, o = {}) {
   View.lists[key] = { ids, ctx: o.ctx || null };
   if (!ids.length) return o.empty || '';
   const head = `<div class="thead" aria-hidden="true"><div class="c-idx">#</div><div>標題</div><div class="c-artist">演唱者</div><div class="c-src">${esc(o.srcLabel || '來源')}</div><div class="c-extra">${esc(o.extraLabel || '')}</div><div></div><div class="c-dur">${ic('clock')}</div><div></div></div>`;
-  return `<div class="tlist" data-list="${esc(key)}"${o.reorder ? ' data-reorder="1"' : ''}>${o.noHead ? '' : head}${ids.map((id, i) => trackRow(song(id), i, o)).join('')}</div>`;
+  return `<div class="tlist${o.extraAlways ? ' with-extra' : ''}" data-list="${esc(key)}"${o.reorder ? ' data-reorder="1"' : ''}>${o.noHead ? '' : head}${ids.map((id, i) => trackRow(song(id), i, o)).join('')}</div>`;
 }
 
 function songCard(s, i) {
@@ -2967,6 +3337,761 @@ const Stats = {
 };
 
 /* =====================================================================
+   BPM: detection from this tab's own audio (while listening, or in a batch),
+   tap tempo, and edits. Everything runs in the browser; only the number is kept.
+   Tab audio capture needs desktop Chrome / Edge (getDisplayMedia + tab audio).
+   ===================================================================== */
+
+/* Audio-thread tap: mono mix, average-of-D decimation, posts ~0.5 s chunks with their RMS */
+const BPM_WORKLET = `
+class BpmTap extends AudioWorkletProcessor {
+  constructor(options) {
+    super();
+    const o = (options && options.processorOptions) || {};
+    this.d = o.decim || 4;
+    this.size = o.chunk || 6000;
+    this.buf = new Float32Array(this.size);
+    this.n = 0; this.acc = 0; this.k = 0; this.sq = 0;
+  }
+  process(inputs) {
+    const input = inputs[0];
+    if (input && input.length) {
+      const a = input[0], b = input[1] || input[0];
+      for (let i = 0; i < a.length; i++) {
+        this.acc += (a[i] + b[i]) * 0.5;
+        if (++this.k === this.d) {
+          const v = this.acc / this.d;
+          this.acc = 0; this.k = 0;
+          this.buf[this.n++] = v;
+          this.sq += v * v;
+          if (this.n === this.size) {
+            this.port.postMessage({ pcm: this.buf, rms: Math.sqrt(this.sq / this.size) }, [this.buf.buffer]);
+            this.buf = new Float32Array(this.size);
+            this.n = 0; this.sq = 0;
+          }
+        }
+      }
+    }
+    return true;
+  }
+}
+registerProcessor('bpm-tap', BpmTap);
+`;
+
+const fmtBpm = v => String(Math.round(v || 0));
+const lowConf = s => !!(s && s.bpm && s.bpmSrc === 'auto' && (s.bpmConf ?? 1) < 0.4);
+function bpmSrcLabel(s) {
+  if (!s || !s.bpm) return '';
+  const label = { auto: '自動偵測', tap: '打拍子', manual: '手動設定' }[s.bpmSrc] || '手動設定';
+  return lowConf(s) ? `${label}，可能是一半或兩倍` : label;
+}
+
+/* ---------- Capture ---------- */
+
+let bpmWorkletUrl = null;
+
+async function openCapture(silent) {
+  // Create the AudioContext before the first await, while the click still counts as user activation
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: { ideal: 1, max: 5 }, width: { ideal: 320 }, height: { ideal: 180 } },
+      audio: { suppressLocalAudioPlayback: !!silent, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      preferCurrentTab: true,
+      selfBrowserSurface: 'include',
+      surfaceSwitching: 'exclude',
+      systemAudio: 'exclude',
+      monitorTypeSurfaces: 'exclude',
+    });
+  } catch (e) {
+    ctx.close().catch(() => {});
+    throw e;
+  }
+  const track = stream.getAudioTracks()[0];
+  if (!track) {
+    stream.getTracks().forEach(t => t.stop());
+    ctx.close().catch(() => {});
+    const err = new Error('沒有取得分頁音訊');
+    err.code = 'NO_AUDIO';
+    throw err;
+  }
+  stream.getVideoTracks().forEach(t => { t.enabled = false; });
+  try {
+    if (!bpmWorkletUrl) bpmWorkletUrl = URL.createObjectURL(new Blob([BPM_WORKLET], { type: 'application/javascript' }));
+    await ctx.audioWorklet.addModule(bpmWorkletUrl);
+  } catch (e) {
+    stream.getTracks().forEach(t => t.stop());
+    ctx.close().catch(() => {});
+    throw e;
+  }
+  const decim = Math.max(1, Math.round(ctx.sampleRate / 12000));
+  const sr = ctx.sampleRate / decim;
+  const src = ctx.createMediaStreamSource(new MediaStream([track]));
+  const node = new AudioWorkletNode(ctx, 'bpm-tap', {
+    numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1],
+    processorOptions: { decim, chunk: Math.round(sr / 2) },
+  });
+  const sink = ctx.createGain();
+  sink.gain.value = 0; // keeps the node running without playing the captured sound twice
+  src.connect(node);
+  node.connect(sink);
+  sink.connect(ctx.destination);
+  if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) { /* stays suspended; chunks will not arrive */ } }
+  const cap = { stream, ctx, node, track, sr, silent: !!silent, closed: false };
+  node.port.onmessage = e => Bpm.route(cap, e.data);
+  track.addEventListener('ended', () => closeCapture(cap, true));
+  return cap;
+}
+
+function closeCapture(cap, byUser = false) {
+  if (!cap || cap.closed) return;
+  cap.closed = true;
+  try { cap.node.port.onmessage = null; cap.node.disconnect(); } catch (e) { /* already gone */ }
+  cap.stream.getTracks().forEach(t => { try { t.stop(); } catch (e) { /* ignore */ } });
+  cap.ctx.close().catch(() => {});
+  Bpm.ended(cap, byUser);
+}
+
+/* ---------- Tempo computation off the main thread ---------- */
+
+const TempoWorker = {
+  w: null,
+  broken: false,
+  seq: 0,
+  jobs: new Map(),
+  get() {
+    if (this.w || this.broken) return this.w;
+    try {
+      const src = `const Tempo = (${TempoFactory.toString()})();
+        onmessage = e => { let r = null; try { r = Tempo.estimate(e.data.pcm, e.data.sr); } catch (err) { r = null; } postMessage({ id: e.data.id, r }); };`;
+      this.w = new Worker(URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
+      this.w.onmessage = e => {
+        const job = this.jobs.get(e.data.id);
+        if (job) { this.jobs.delete(e.data.id); job.resolve(e.data.r); }
+      };
+      this.w.onerror = () => {
+        this.broken = true;
+        this.w = null;
+        this.jobs.forEach(job => job.resolve(Tempo.estimate(job.pcm, job.sr)));
+        this.jobs.clear();
+      };
+    } catch (e) {
+      this.broken = true;
+      this.w = null;
+    }
+    return this.w;
+  },
+  run(pcm, sr) {
+    const w = this.get();
+    if (!w) return Promise.resolve(Tempo.estimate(pcm, sr));
+    return new Promise(resolve => {
+      const id = ++this.seq;
+      this.jobs.set(id, { resolve, pcm, sr });
+      w.postMessage({ id, pcm, sr });
+    });
+  },
+};
+
+/* ---------- Gate: keep only audio from the real video playing forward ---------- */
+
+function playerRawTime() {
+  try { return Player.ready && Player.yt && Player.yt.getCurrentTime ? Player.yt.getCurrentTime() || 0 : 0; } catch (e) { return 0; }
+}
+
+class Collector {
+  constructor(id, seconds, sr) {
+    this.id = id;
+    this.sr = sr;
+    this.need = Math.round(seconds * sr);
+    this.parts = [];
+    this.have = 0;
+    this.lastRaw = -1;
+    this.rate = Player.rate || 1;
+    this.since = Date.now();
+  }
+  reset() { this.parts = []; this.have = 0; }
+  /* Returns true when the chunk was kept */
+  feed(chunk, startAt) {
+    const raw = playerRawTime();
+    const prev = this.lastRaw;
+    this.lastRaw = raw;
+    if (Player.id !== this.id || Player.state !== 1) return false;
+    if ((Player.rate || 1) !== this.rate) { this.rate = Player.rate || 1; this.reset(); return false; }
+    if (prev < 0) return false;
+    const d = raw - prev;
+    if (d > 2.5 || d < -0.3) { this.reset(); return false; } // seek or loop: start a fresh stretch
+    if (d < 0.1) return false; // video clock not moving: paused, buffering, or an ad
+    if (raw < startAt) return false;
+    if (!(chunk.rms > 2e-4)) return false; // silence (muted)
+    this.parts.push(chunk.pcm);
+    this.have += chunk.pcm.length;
+    return true;
+  }
+  get done() { return this.have >= this.need; }
+  get progress() { return Math.min(1, this.have / this.need); }
+  pcm() {
+    const out = new Float32Array(this.have);
+    let o = 0;
+    for (const p of this.parts) { out.set(p, o); o += p.length; }
+    return out;
+  }
+}
+
+/* ---------- Main controller ---------- */
+
+const Bpm = {
+  CFG: { liveSeconds: 24, batchSeconds: 24, minSeconds: 12, defaultStart: 12, adTimeout: 60 },
+  live: null,
+  opening: false,
+  declined: false,
+
+  supported() {
+    const md = navigator.mediaDevices;
+    if (!md || typeof md.getDisplayMedia !== 'function' || typeof window.AudioWorkletNode === 'undefined') return false;
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) return false;
+    const brands = navigator.userAgentData && navigator.userAgentData.brands;
+    if (brands && brands.length) return brands.some(b => /Chromium|Google Chrome|Microsoft Edge/i.test(b.brand));
+    return /Chrome\//.test(navigator.userAgent);
+  },
+
+  pending() {
+    return Store.data.order.filter(id => { const s = song(id); return s && !s.bpm && !s.unavailable && (s.bpmFail || 0) < 2; });
+  },
+
+  route(cap, chunk) {
+    if (Batch.running && Batch.cap === cap) Batch.onChunk(chunk);
+    else if (this.live === cap) LiveBpm.onChunk(chunk);
+  },
+
+  ended(cap, byUser) {
+    if (this.live === cap) {
+      this.live = null;
+      LiveBpm.col = null;
+      if (byUser) toast('已停止偵測 BPM');
+    }
+    if (Batch.cap === cap && Batch.running) Batch.stop(byUser ? '已停止分享，批次偵測中斷' : '');
+    this.ui();
+  },
+
+  captureError(e, auto) {
+    if (e && e.name === 'NotAllowedError') {
+      this.declined = true;
+      toast(auto ? '這次先不偵測 BPM。之後可以從播放列的 BPM 按鈕開始' : '已取消分享');
+    } else if (e && e.code === 'NO_AUDIO') {
+      toast('沒有取得聲音：請選擇「這個分頁」，並保持「同時分享分頁音訊」開啟');
+    } else if (e && e.name === 'InvalidStateError') {
+      toast('請再按一次，瀏覽器要在你點擊時才允許分享');
+    } else {
+      toast('無法開始偵測 BPM：' + ((e && e.message) || e));
+    }
+  },
+
+  /* Must be called from a click or key handler (getDisplayMedia needs user activation) */
+  async startLive({ auto = false } = {}) {
+    if (this.live || this.opening) return;
+    if (!this.supported()) { toast('自動偵測 BPM 需要電腦版 Chrome 或 Edge，這個瀏覽器可以用「打拍子」'); return; }
+    if (Batch.running) { toast('批次偵測進行中'); return; }
+    this.opening = true;
+    this.ui();
+    try {
+      this.live = await openCapture(false);
+      this.declined = false;
+      if (!auto) toast('開始邊聽邊偵測 BPM，聽到沒有 BPM 的歌會自動偵測');
+    } catch (e) {
+      this.captureError(e, auto);
+    } finally {
+      this.opening = false;
+      this.ui();
+    }
+  },
+
+  stopLive() {
+    const cap = this.live;
+    this.live = null;
+    LiveBpm.col = null;
+    closeCapture(cap, false);
+    toast('已停止偵測 BPM');
+    this.ui();
+  },
+
+  /* First play of a visit: ask once, only when there is something to detect */
+  onUserPlay(id) {
+    if (!S().autoBpm || this.live || this.opening || this.declined || Batch.running || Queue.autoAdvancing) return;
+    if (!this.supported()) return;
+    const ua = navigator.userActivation;
+    if (ua && !ua.isActive) return;
+    const s = song(id);
+    if (s && s.bpm && !this.pending().length) return;
+    this.startLive({ auto: true });
+  },
+
+  apply(id, res, rate, mode) {
+    const s = song(id);
+    if (!s) return false;
+    if (!res || !(res.bpm > 0)) {
+      s.bpmFail = (s.bpmFail || 0) + 1;
+      Store.save();
+      return false;
+    }
+    s.bpm = round1(res.bpm / (rate || 1));
+    s.bpmSrc = 'auto';
+    s.bpmConf = res.confidence;
+    s.bpmAt = Date.now();
+    delete s.bpmFail;
+    Store.save();
+    App.songChanged(id);
+    if (mode === 'live') toast(`偵測到 BPM ${fmtBpm(s.bpm)}：${s.title}`);
+    return true;
+  },
+
+  set(id, bpm, src = 'manual') {
+    const s = song(id);
+    if (!s) return;
+    if (!(bpm > 0)) { this.clear(id, true); return; }
+    s.bpm = round1(clamp(bpm, 20, 400));
+    s.bpmSrc = src;
+    delete s.bpmConf;
+    delete s.bpmFail;
+    s.bpmAt = Date.now();
+    Store.save();
+    App.songChanged(id);
+  },
+
+  scale(id, f) {
+    const s = song(id);
+    if (!s || !s.bpm) return;
+    this.set(id, s.bpm * f, 'manual');
+    toast(`BPM 改為 ${fmtBpm(song(id).bpm)}`);
+  },
+
+  clear(id, quiet) {
+    const s = song(id);
+    if (!s) return;
+    delete s.bpm; delete s.bpmSrc; delete s.bpmConf; delete s.bpmAt; delete s.bpmFail;
+    Store.save();
+    if (LiveBpm.col && LiveBpm.col.id === id) LiveBpm.col = null;
+    App.songChanged(id);
+    if (!quiet) toast(this.live ? '已清除，接下來播放時會重新偵測' : '已清除 BPM');
+  },
+
+  pillText(s) {
+    if (!s) return '';
+    if (s.bpm) return `${fmtBpm(s.bpm)} BPM${lowConf(s) ? ' ?' : ''}`;
+    const col = LiveBpm.col;
+    if (LiveBpm.busy && LiveBpm.busy === s.id) return '計算 BPM…';
+    if (this.live && col && col.id === s.id && col.have > 0) return `偵測 BPM ${Math.round(col.progress * 100)}%`;
+    if (this.live && !s.unavailable) return '等待偵測 BPM';
+    return 'BPM —';
+  },
+
+  ui() {
+    Bar.bpm();
+    const pill = $('#npBpm');
+    if (pill) {
+      const s = song(Queue.current());
+      pill.hidden = !s;
+      if (s) {
+        pill.innerHTML = `${ic('metronome')}<span>${esc(this.pillText(s))}</span>`;
+        pill.title = s.bpm ? bpmSrcLabel(s) : 'BPM 選項';
+        pill.classList.toggle('busy', !s.bpm && !!this.live);
+      }
+    }
+  },
+};
+
+/* ---------- Detect while listening ---------- */
+
+const LiveBpm = {
+  col: null,
+  busy: null,
+
+  onTrack(id) {
+    const col = this.col;
+    if (col && col.id !== id && col.have >= Bpm.CFG.minSeconds * col.sr) this.finish(col);
+    if (!col || col.id !== id) this.col = null;
+    Bpm.ui();
+  },
+
+  /* Start after the first sung line (skips MV intros); wait while lyrics are still loading */
+  startAt(id) {
+    if (Lyrics.id === id) {
+      if (Lyrics.status === 'loading' || Lyrics.status === 'searching') return Infinity;
+      if (Lyrics.status === 'ready' && Lyrics.parsed && Lyrics.parsed.synced) {
+        const first = Lyrics.parsed.lines.find(l => l.text);
+        if (first) return first.t;
+      }
+    }
+    return Bpm.CFG.defaultStart;
+  },
+
+  onChunk(chunk) {
+    if (Batch.running || !Bpm.live) return;
+    const id = Player.id;
+    const s = song(id);
+    if (!s || s.bpm || s.unavailable || this.busy === id) return;
+    if (!this.col || this.col.id !== id) this.col = new Collector(id, Bpm.CFG.liveSeconds, Bpm.live.sr);
+    if (this.col.feed(chunk, this.startAt(id))) Bpm.ui();
+    if (this.col.done) { const col = this.col; this.col = null; this.finish(col); }
+  },
+
+  async finish(col) {
+    this.busy = col.id;
+    Bpm.ui();
+    let res = null;
+    try { res = await TempoWorker.run(col.pcm(), col.sr); } catch (e) { res = null; }
+    this.busy = null;
+    const s = song(col.id);
+    if (s && !s.bpm) Bpm.apply(col.id, res, col.rate, 'live');
+    Bpm.ui();
+  },
+};
+
+/* ---------- Batch ---------- */
+
+const Batch = {
+  running: false,
+  stopFlag: false,
+  cap: null,
+  reused: false,
+  list: [],
+  idx: 0,
+  ok: 0,
+  skipped: 0,
+  cur: null,
+  col: null,
+  colStart: 0,
+  wake: null,
+  timer: null,
+  lastProgress: 0,
+  prev: null,
+  summary: null,
+
+  open() {
+    if (!Bpm.supported()) { toast('批次偵測需要電腦版 Chrome 或 Edge'); return; }
+    if (this.running) { toast('批次偵測正在進行'); return; }
+    const n = Bpm.pending().length;
+    if (!n) { toast('所有歌曲都已經有 BPM'); return; }
+    Modal.open({
+      title: '批次偵測 BPM',
+      body: `<p class="confirm-body">有 <b>${n}</b> 首歌還沒有 BPM，預估需要大約 ${fmtLong(n * 38)}。</p>
+        <ul class="help-list">
+          <li>每首會跳到歌曲中段，聽大約 25 秒來分析。</li>
+          <li>批次期間會占用播放器，不能同時聽歌。可以隨時停止，下次會從還沒偵測的歌繼續。</li>
+          <li>沒有 YouTube Premium 時，正在播廣告的歌可能會被略過。</li>
+          <li>請保持這個分頁開著。</li>
+        </ul>
+        <label class="check"><input type="checkbox" id="bpmSilent" checked>批次期間不從喇叭出聲</label>`,
+      foot: `<button class="btn btn-ghost" type="button" data-x="cancel">取消</button><button class="btn btn-light" type="button" data-x="go">${ic('metronome')}開始</button>`,
+      init: m => {
+        m.$('[data-x="cancel"]').addEventListener('click', () => m.close());
+        m.$('[data-x="go"]').addEventListener('click', () => {
+          const silent = m.$('#bpmSilent').checked;
+          m.close();
+          this.start(silent);
+        });
+      },
+    });
+  },
+
+  /* Called from the dialog's click handler */
+  async start(silent) {
+    if (this.running) return;
+    const list = Bpm.pending();
+    if (!list.length) { toast('所有歌曲都已經有 BPM'); return; }
+    let cap = null, reused = false;
+    try {
+      if (!silent && Bpm.live) {
+        cap = Bpm.live;
+        reused = true;
+      } else {
+        if (Bpm.live) { const old = Bpm.live; Bpm.live = null; closeCapture(old, false); }
+        cap = await openCapture(silent);
+      }
+    } catch (e) {
+      Bpm.captureError(e, false);
+      return;
+    }
+    Object.assign(this, { cap, reused, running: true, stopFlag: false, list, idx: 0, ok: 0, skipped: 0, summary: null, cur: null });
+    const curId = Player.id;
+    this.prev = curId ? { id: curId, pos: Player.time() } : null;
+    Player.pause();
+    if (NP.isOpen) NP.close();
+    Drawer.toggle(false);
+    document.body.classList.add('batching');
+    Bpm.ui();
+    this.panel();
+    try { await this.loop(); } finally { this.finish(); }
+  },
+
+  async loop() {
+    for (this.idx = 0; this.idx < this.list.length && !this.stopFlag; this.idx++) {
+      const id = this.list[this.idx];
+      const s = song(id);
+      if (!s || s.bpm || s.unavailable) continue;
+      this.cur = id;
+      this.panel();
+      const start = await this.startPoint(s);
+      if (this.stopFlag) break;
+      const got = await this.measure(id, start);
+      if (this.stopFlag) break;
+      let ok = false;
+      if (got) {
+        let res = null;
+        try { res = await TempoWorker.run(got.pcm, got.sr); } catch (e) { res = null; }
+        ok = Bpm.apply(id, res, got.rate, 'batch');
+      }
+      if (ok) this.ok++; else this.skipped++;
+      this.panel();
+    }
+  },
+
+  /* Middle of the song, preferably where a lyric line starts (often the chorus) */
+  async startPoint(s) {
+    const need = Bpm.CFG.batchSeconds;
+    const dur = s.duration || 0;
+    let t = dur ? dur * 0.35 : 40;
+    try {
+      const rec = await KV.get('lyr:' + s.id);
+      if (rec && rec.kind === 'synced') {
+        const from = dur ? dur * 0.3 : 30;
+        const line = parseLRC(rec.lrc).lines.find(l => l.text && l.t >= from);
+        if (line) t = line.t;
+      }
+    } catch (e) { /* lyrics are optional */ }
+    if (dur) t = Math.min(t, Math.max(0, dur - need - 4));
+    return Math.max(0, t);
+  },
+
+  measure(id, start) {
+    this.col = new Collector(id, Bpm.CFG.batchSeconds, this.cap.sr);
+    this.colStart = start;
+    this.lastProgress = Date.now();
+    Player.load(id, start, true);
+    return new Promise(resolve => {
+      this.wake = resolve;
+      clearInterval(this.timer);
+      this.timer = setInterval(() => {
+        if (Date.now() - this.lastProgress > Bpm.CFG.adTimeout * 1000) this.resolve(null);
+        else this.panel();
+      }, 1000);
+    });
+  },
+
+  onChunk(chunk) {
+    const col = this.col;
+    if (!col) return;
+    if (col.feed(chunk, this.colStart - 1)) {
+      this.lastProgress = Date.now();
+      this.panel();
+    }
+    if (col.done) this.resolve({ pcm: col.pcm(), sr: col.sr, rate: col.rate });
+  },
+
+  onEnded() {
+    const col = this.col;
+    if (col && col.have >= Bpm.CFG.minSeconds * col.sr) this.resolve({ pcm: col.pcm(), sr: col.sr, rate: col.rate });
+    else this.resolve(null);
+  },
+
+  onError(code) {
+    const s = song(this.cur);
+    if (s && (code === 100 || code === 101 || code === 150)) {
+      s.unavailable = code === 100 ? 'gone' : 'embed';
+      Store.save();
+    }
+    this.resolve(null);
+  },
+
+  resolve(value) {
+    clearInterval(this.timer);
+    this.timer = null;
+    this.col = null;
+    const w = this.wake;
+    this.wake = null;
+    if (w) w(value);
+  },
+
+  stop(msg) {
+    if (!this.running) return;
+    this.stopFlag = true;
+    this.resolve(null);
+    if (msg) toast(msg);
+  },
+
+  finish() {
+    const cap = this.cap;
+    this.running = false;
+    this.cap = null;
+    this.col = null;
+    this.cur = null;
+    document.body.classList.remove('batching');
+    if (cap && !this.reused && !cap.closed) {
+      if (!cap.silent && S().autoBpm && !Bpm.live) Bpm.live = cap; // keep sharing for listening
+      else closeCapture(cap, false);
+    }
+    if (this.prev && song(this.prev.id)) Player.load(this.prev.id, this.prev.pos, false);
+    else Player.stop();
+    this.prev = null;
+    Bar.playState();
+    this.summary = { ok: this.ok, skipped: this.skipped, stopped: this.stopFlag };
+    this.panel();
+    setTimeout(() => { if (!this.running) { this.summary = null; this.panel(); } }, 12000);
+    Bpm.ui();
+    App.refreshAll();
+  },
+
+  panel() {
+    let el = $('#batchPanel');
+    if (!this.running && !this.summary) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'batchPanel';
+      el.className = 'batch-panel';
+      el.setAttribute('role', 'status');
+      el.addEventListener('click', e => {
+        if (e.target.closest('[data-x="stop"]')) this.stop('已停止批次偵測');
+        if (e.target.closest('[data-x="close"]')) { this.summary = null; this.panel(); }
+      });
+      document.body.appendChild(el);
+    }
+    if (this.running) {
+      const n = this.list.length;
+      const s = song(this.cur);
+      const p = this.col ? this.col.progress : 0;
+      const overall = n ? ((this.idx + p) / n) * 100 : 0;
+      const waiting = this.col && this.col.have === 0 && Date.now() - this.col.since > 4000;
+      const state = !this.col ? '準備下一首' : waiting ? '等待影片開始（可能在播廣告）' : `分析中 ${Math.round(p * 100)}%`;
+      el.innerHTML = `<div class="bp-head"><b>批次偵測 BPM</b><span class="bp-count">${Math.min(n, this.idx + 1)} / ${n}</span></div>
+        <div class="bp-song"${s ? langAttr(songLang(s)) : ''}>${s ? esc(s.title) : '…'}</div>
+        <div class="bp-bar"><i style="width:${overall.toFixed(1)}%"></i></div>
+        <div class="bp-foot"><span>${state}</span><button class="btn sm btn-ghost" type="button" data-x="stop">停止</button></div>`;
+    } else {
+      const r = this.summary;
+      el.innerHTML = `<div class="bp-head"><b>${r.stopped ? '批次偵測已停止' : '批次偵測完成'}</b><button class="icon-btn xs" type="button" data-x="close" aria-label="關閉">${ic('x')}</button></div>
+        <div class="bp-song">偵測到 ${r.ok} 首${r.skipped ? `，略過 ${r.skipped} 首` : ''}${Bpm.pending().length ? `，還有 ${Bpm.pending().length} 首沒有 BPM` : ''}</div>`;
+    }
+  },
+};
+
+/* ---------- Tap tempo ---------- */
+
+function openTapTempo(id) {
+  const s = song(id);
+  if (!s) return;
+  let taps = [];
+  let scale = 1;
+  let result = 0;
+  let m = null;
+  const show = () => {
+    if (!m) return;
+    const v = result ? round1(result * scale) : 0;
+    m.$('#tapBpm').textContent = v ? (Math.abs(v - Math.round(v)) < 0.05 ? fmtBpm(v) : v.toFixed(1)) : '—';
+    m.$('#tapN').textContent = taps.length ? (taps.length < 4 ? `再按 ${4 - taps.length} 下` : `${taps.length} 下${taps.length < 8 ? '，多按幾下會更準' : ''}`) : '按這裡打拍子';
+    m.$('[data-x="save"]').disabled = !v;
+  };
+  const tap = () => {
+    const now = performance.now();
+    if (taps.length && now - taps[taps.length - 1] > 2000) { taps = []; scale = 1; }
+    taps.push(now);
+    if (taps.length > 24) taps.shift();
+    result = Tempo.fromTaps(taps);
+    const pad = m && m.$('#tapPad');
+    if (pad) { pad.classList.remove('hit'); void pad.offsetWidth; pad.classList.add('hit'); }
+    show();
+  };
+  const save = () => {
+    const v = round1(result * scale);
+    if (!v) return;
+    Bpm.set(id, v, 'tap');
+    m.close();
+    toast(`BPM 設為 ${fmtBpm(v)}`);
+  };
+  Modal.open({
+    title: `打拍子：${s.title}`,
+    body: `<p class="help">一邊聽，一邊跟著節拍按下面的圓鈕，或按空白鍵、T 鍵。按 8 下以上比較準；停超過 2 秒會重新開始。</p>
+      <button class="tap-pad" type="button" id="tapPad"><span class="tap-bpm" id="tapBpm">—</span><span class="tap-n" id="tapN">按這裡打拍子</span></button>
+      <div class="tap-tools"><button class="btn sm" type="button" data-x="half">÷2</button><button class="btn sm" type="button" data-x="double">×2</button><button class="btn sm btn-ghost" type="button" data-x="reset">重來</button></div>`,
+    foot: `<span class="help grow">${s.bpm ? `目前 ${fmtBpm(s.bpm)} BPM（${esc(bpmSrcLabel(s))}）` : '這首還沒有 BPM'}</span>
+      <button class="btn btn-ghost" type="button" data-x="cancel">取消</button><button class="btn btn-light" type="button" data-x="save" disabled>儲存</button>`,
+    autoFocus: false,
+    onKey: e => {
+      if (e.isComposing) return false;
+      const k = e.key.toLowerCase();
+      if (k === ' ' || k === 't') {
+        e.preventDefault();
+        if (!e.repeat) {
+          if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+          tap();
+        }
+        return true;
+      }
+      if (k === 'enter') { e.preventDefault(); save(); return true; }
+      return false;
+    },
+    init: modal => {
+      m = modal;
+      m.$('#tapPad').addEventListener('pointerdown', e => { e.preventDefault(); tap(); });
+      m.$('#tapPad').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); tap(); } });
+      m.el.addEventListener('click', e => {
+        const b = e.target.closest('[data-x]');
+        if (!b) return;
+        const x = b.dataset.x;
+        if (x === 'half') { scale /= 2; show(); }
+        else if (x === 'double') { scale *= 2; show(); }
+        else if (x === 'reset') { taps = []; scale = 1; result = 0; show(); }
+        else if (x === 'cancel') m.close();
+        else if (x === 'save') save();
+      });
+    },
+  });
+}
+
+/* ---------- Menu ---------- */
+
+function bpmMenu(id, anchor) {
+  const s = song(id);
+  const sup = Bpm.supported();
+  const pend = Bpm.pending().length;
+  Menu.open([
+    { header: s ? (s.bpm ? `${s.bpm} BPM · ${bpmSrcLabel(s)}` : '這首還沒有 BPM') : 'BPM' },
+    sup ? (Bpm.live
+      ? { label: '停止邊聽邊偵測', icon: 'x', run: () => Bpm.stopLive() }
+      : { label: '開始邊聽邊偵測', icon: 'metronome', hint: '分享分頁音訊', run: () => Bpm.startLive() }) : null,
+    s && s.bpm && s.bpmSrc === 'auto' && Bpm.live ? { label: '重新偵測這首', icon: 'refresh', run: () => Bpm.clear(id) } : null,
+    s ? { label: '打拍子…', icon: 'target', run: () => openTapTempo(id) } : null,
+    s && s.bpm ? { label: '×2（兩倍）', icon: 'plus', run: () => Bpm.scale(id, 2) } : null,
+    s && s.bpm ? { label: '÷2（一半）', icon: 'minus', run: () => Bpm.scale(id, 0.5) } : null,
+    s && s.bpm ? { label: '清除 BPM', icon: 'trash', danger: true, run: () => Bpm.clear(id) } : null,
+    { sep: true },
+    sup ? { label: '批次偵測 BPM…', icon: 'metronome', hint: pend ? `${pend} 首` : '', disabled: !pend, run: () => Batch.open() } : null,
+    { label: '依 BPM 排序歌曲', icon: 'sliders', run: () => { S().sort = 'bpm-asc'; Store.save(); if (Router.cur && Router.cur.name === 'songs') rerender(); else Router.go('songs'); } },
+  ], anchor);
+}
+
+/* Playlist order by BPM; songs without BPM keep their order at the end */
+function sortPlaylistByBpm(plId, dir) {
+  const p = Lib.playlist(plId);
+  if (!p || !p.songs.length) return;
+  const before = p.songs.slice();
+  const pos = new Map(before.map((x, i) => [x, i]));
+  const bpmOf = x => (song(x) && song(x).bpm) || 0;
+  p.songs.sort((a, b) => {
+    const x = bpmOf(a), y = bpmOf(b);
+    if (!x !== !y) return x ? -1 : 1;
+    if (!x) return pos.get(a) - pos.get(b);
+    return dir * (x - y) || pos.get(a) - pos.get(b);
+  });
+  p.updated = Date.now();
+  Store.save();
+  rerender();
+  const missing = before.filter(x => !bpmOf(x)).length;
+  toast(`已依 BPM ${dir > 0 ? '由慢到快' : '由快到慢'}排列${missing ? `，${missing} 首沒有 BPM 的排在最後` : ''}`, {
+    action: { label: '復原', run: () => { p.songs = before; p.updated = Date.now(); Store.save(); rerender(); } },
+  });
+}
+
+/* =====================================================================
    Routing and page views.
    Routes: #home #search #songs #likes #playlists #recent #pl-<id> #np
    ===================================================================== */
@@ -3164,23 +4289,35 @@ const Views = {
     const d = Store.data;
     const sort = S().sort || 'added';
     const ids = d.order.slice();
+    const byBpm = dir => (a, b) => {
+      const x = song(a).bpm || 0, y = song(b).bpm || 0;
+      if (!x !== !y) return x ? -1 : 1; // songs without BPM go last
+      return dir * (x - y) || song(a).title.localeCompare(song(b).title, 'ja');
+    };
     const by = {
       title: (a, b) => song(a).title.localeCompare(song(b).title, 'ja'),
       artist: (a, b) => (song(a).artist || '').localeCompare(song(b).artist || '', 'ja') || song(a).title.localeCompare(song(b).title, 'ja'),
       plays: (a, b) => (song(b).plays || 0) - (song(a).plays || 0),
       duration: (a, b) => (song(b).duration || 0) - (song(a).duration || 0),
+      'bpm-asc': byBpm(1),
+      'bpm-desc': byBpm(-1),
     }[sort];
     if (by) ids.sort(by);
+    const isBpm = sort === 'bpm-asc' || sort === 'bpm-desc';
     const sel = `<select class="select" id="sortSel" aria-label="排序" style="width:auto;height:40px">
-      ${[['added', '最近加入'], ['title', '歌名'], ['artist', '演唱者'], ['plays', '播放次數'], ['duration', '長度']].map(([v, l]) => `<option value="${v}"${v === sort ? ' selected' : ''}>排序：${l}</option>`).join('')}
+      ${[['added', '最近加入'], ['title', '歌名'], ['artist', '演唱者'], ['plays', '播放次數'], ['duration', '長度'], ['bpm-asc', 'BPM 慢→快'], ['bpm-desc', 'BPM 快→慢']].map(([v, l]) => `<option value="${v}"${v === sort ? ' selected' : ''}>排序：${l}</option>`).join('')}
     </select>`;
+    const pend = Bpm.supported() ? Bpm.pending().length : 0;
+    const bpmBtn = pend ? `<button class="btn btn-ghost" type="button" data-act="bpm-batch">${ic('metronome')}偵測 BPM（${pend}）</button>` : '';
     return listHeader({
       kicker: '我的音樂', title: '歌曲', sub: totalOf(ids), art: ids.length ? mosaic(ids) : ic('note'), bg: ids[0],
-      actions: ids.length ? playButtons('songs', sel) : '',
+      actions: ids.length ? playButtons('songs', sel + bpmBtn) : '',
     }) + trackList(ids, 'songs', {
       ctx: { type: 'songs', name: '歌曲' },
-      extraLabel: sort === 'plays' ? '播放' : '加入',
-      extra: s => (sort === 'plays' ? `${s.plays || 0} 次` : s.added ? relTime(s.added) : ''),
+      extraLabel: isBpm ? 'BPM' : sort === 'plays' ? '播放' : '加入',
+      extraAlways: isBpm,
+      extra: s => (isBpm ? (s.bpm ? `${fmtBpm(s.bpm)}${lowConf(s) ? ' ?' : ''}` : '—') : sort === 'plays' ? `${s.plays || 0} 次` : s.added ? relTime(s.added) : ''),
+      mobileExtra: isBpm ? s => (s.bpm ? `${fmtBpm(s.bpm)} BPM` : '') : null,
       empty: `<div class="empty"><h3>音樂庫是空的</h3><p>按右上角「加入歌曲」，貼上 YouTube 影片或播放清單連結。</p><button class="btn btn-light" type="button" data-act="add">${ic('plus')}加入歌曲</button></div>`,
     });
   },
@@ -3420,6 +4557,7 @@ const NP = {
     $('#npArtist').dataset.v = s.artist || '';
     $('#npLike').hidden = false;
     setLikeBtn($('#npLike'), Lib.isLiked(s.id));
+    Bpm.ui();
     this.renderInfo();
   },
   renderQueue() { if (this.isOpen && this.tab === 'queue') $('#npPanelQueue').innerHTML = queueHTML(); },
@@ -3438,6 +4576,7 @@ const NP = {
       ${row('歌名翻譯', s.trans ? esc(s.trans) : '')}
       ${row('專輯 / 備註', esc(s.album))}
       ${row('長度', s.duration ? fmtTime(s.duration) : '')}
+      ${row('BPM', s.bpm ? `${s.bpm}<span class="help">　${esc(bpmSrcLabel(s))}</span>` : '<span class="help">還沒有</span>')}
       ${row('加入時間', s.added ? new Date(s.added).toLocaleDateString('zh-TW') : '')}
       ${row('播放次數', String(s.plays || 0))}
       ${row('歌詞來源', esc(src) + (rec && rec.track ? `<br><span class="help">${esc(rec.track)} — ${esc(rec.artist)}</span>` : ''))}
@@ -3447,6 +4586,7 @@ const NP = {
     <div class="info-actions">
       <button class="btn" type="button" data-act="edit-current">${ic('edit')}編輯資訊</button>
       <button class="btn" type="button" data-act="ly-search">${ic('mic')}搜尋歌詞</button>
+      <button class="btn" type="button" data-act="bpm-menu">${ic('metronome')}BPM</button>
       <a class="btn btn-ghost" href="${ytWatch(s.id)}" target="_blank" rel="noopener">${ic('external')}在 YouTube 開啟</a>
     </div>`;
   },
@@ -4200,10 +5340,12 @@ const App = {
     markCurrent();
     this.queueChanged();
     Lyrics.load(id);
+    LiveBpm.onTrack(id);
     setMediaSession(s);
     if (Router.cur && Router.cur.name === 'home') rerender();
   },
   onPlaying() {
+    if (Batch.running) return; // batch analysis is not listening: no history, no play count
     const id = Player.id;
     const s = song(id);
     this.errStreak = 0;
@@ -4227,10 +5369,12 @@ const App = {
     setMediaSession(s);
   },
   onEnded() {
+    if (Batch.running) { Batch.onEnded(); return; }
     if (Sleep.endOfTrack) { Sleep.fire(); return; }
     Queue.next(true);
   },
   onPlayerError(code) {
+    if (Batch.running) { Batch.onError(code); return; }
     const id = Player.id;
     const s = song(id);
     const title = s ? s.title : id;
@@ -4316,6 +5460,8 @@ function playlistMenu(plId, anchor) {
       p.desc = d; p.updated = Date.now();
       Store.save(); rerender();
     } },
+    p.songs.length > 1 ? { label: '依 BPM 排列（慢→快）', icon: 'metronome', run: () => sortPlaylistByBpm(p.id, 1) } : null,
+    p.songs.length > 1 ? { label: '依 BPM 排列（快→慢）', icon: 'metronome', run: () => sortPlaylistByBpm(p.id, -1) } : null,
     p.songs.length ? { label: '複製所有 YouTube 連結', icon: 'link', run: () => copyText(p.songs.map(ytWatch).join('\n'), `已複製 ${p.songs.length} 個連結`) } : null,
     { sep: true },
     { label: '刪除播放清單', icon: 'trash', danger: true, run: async () => {
@@ -4457,6 +5603,12 @@ const Actions = {
   'ly-tap': () => { if (Lyrics.id) openLyricEditor(Lyrics.id, 'tap'); },
   'ly-retry': () => { if (Lyrics.id) Lyrics.load(Lyrics.id, { refetch: true }); },
   'ly-resume': () => Lyrics.resume(),
+  'bpm-menu': ({ el }) => {
+    const id = Queue.current();
+    if (!id) { toast('先播放一首歌'); return; }
+    bpmMenu(id, el);
+  },
+  'bpm-batch': () => Batch.open(),
 };
 
 /* ---------- Add songs ---------- */
@@ -4607,6 +5759,11 @@ function openEditSong(id) {
         <label class="field"><span>原唱（翻唱時填寫）</span><input class="input" id="esOrig" value="${esc(s.origArtist || '')}" autocomplete="off"></label>
       </div>
       <label class="field"><span>專輯 / 備註</span><input class="input" id="esAlbum" value="${esc(s.album || '')}" autocomplete="off"></label>
+      <div class="field-row bpm-row">
+        <label class="field field-bpm"><span>BPM${s.bpm ? `（${esc(bpmSrcLabel(s))}）` : ''}</span><input class="input" id="esBpm" type="number" inputmode="decimal" min="20" max="400" step="0.1" value="${s.bpm || ''}" placeholder="還沒有"></label>
+        <button class="btn btn-ghost" type="button" data-x="bpm-half" title="一半">÷2</button>
+        <button class="btn btn-ghost" type="button" data-x="bpm-double" title="兩倍">×2</button>
+      </div>
       <div class="row2">
         <label class="field"><span>歌詞搜尋用的歌名</span><input class="input" id="esLqT" value="${esc((s.lq && s.lq.track) || '')}" placeholder="${esc(dq.track)}" autocomplete="off"></label>
         <label class="field"><span>歌詞搜尋用的歌手</span><input class="input" id="esLqA" value="${esc((s.lq && s.lq.artist) || '')}" placeholder="${esc(dq.artist || '（不指定）')}" autocomplete="off"></label>
@@ -4625,7 +5782,10 @@ function openEditSong(id) {
         const x = b.dataset.x;
         if (x === 'cancel') m.close();
         else if (x === 'swap') { const t = m.$('#esTitle').value; m.$('#esTitle').value = m.$('#esArtist').value; m.$('#esArtist').value = t; }
-        else if (x === 'reparse') {
+        else if (x === 'bpm-half' || x === 'bpm-double') {
+          const cur = parseFloat(m.$('#esBpm').value);
+          if (cur > 0) m.$('#esBpm').value = round1(clamp(cur * (x === 'bpm-half' ? 0.5 : 2), 20, 400));
+        } else if (x === 'reparse') {
           const p = parseVideoTitle(s.rawTitle, s.channel);
           m.$('#esTitle').value = p.title; m.$('#esArtist').value = p.artist; m.$('#esOrig').value = p.origArtist;
         } else if (x === 'retrans') {
@@ -4650,6 +5810,11 @@ function openEditSong(id) {
           const lqT = v('#esLqT'), lqA = v('#esLqA');
           if (lqT || lqA) s.lq = { ...(lqT ? { track: lqT } : {}), ...(lqA ? { artist: lqA } : {}) };
           else delete s.lq;
+          const bpmIn = parseFloat(v('#esBpm'));
+          if (!(bpmIn > 0)) { if (s.bpm) { delete s.bpm; delete s.bpmSrc; delete s.bpmConf; delete s.bpmAt; } }
+          else if (Math.abs(round1(clamp(bpmIn, 20, 400)) - (s.bpm || 0)) > 0.04) {
+            s.bpm = round1(clamp(bpmIn, 20, 400)); s.bpmSrc = 'manual'; s.bpmAt = Date.now(); delete s.bpmConf; delete s.bpmFail;
+          }
           Store.save();
           m.close();
           App.songChanged(id);
@@ -4686,6 +5851,12 @@ function openSettings() {
       <div class="set-sec"><h3>歌詞</h3>
         ${sw('stAutoLy', st.autoLyrics, '自動搜尋同步歌詞', '播放時用歌名、歌手和長度到 LRCLIB 比對')}
         ${sw('stLyTrans', st.lyricTrans, '逐句翻譯歌詞', '在每一句歌詞下方顯示翻譯（原文仍是主要文字）')}
+      </div>
+      <div class="set-sec"><h3>BPM</h3>
+        ${Bpm.supported()
+          ? `${sw('stAutoBpm', st.autoBpm, '自動偵測 BPM', '每次打開網站第一次按播放時，會請你分享這個分頁的音訊；之後聽到沒有 BPM 的歌會自動偵測，只保留數字，不錄音也不上傳')}
+            <div class="btn-row"><button class="btn sm" type="button" data-x="bpm-batch">${ic('metronome')}批次偵測 BPM</button><span class="help" style="align-self:center">還有 ${Bpm.pending().length} 首沒有 BPM</span></div>`
+          : '<p class="help" style="padding:10px 0">自動偵測 BPM 需要電腦版 Chrome 或 Edge。這個瀏覽器可以在正在播放畫面用「打拍子」設定 BPM。</p>'}
       </div>
       <div class="set-sec"><h3>播放</h3>
         ${sw('stCover', st.showCover, '在側欄顯示正在播放的封面', '關閉後只在播放列顯示小封面')}
@@ -4724,6 +5895,12 @@ function openSettings() {
       m.$('#stAutoLy').addEventListener('change', () => { S().autoLyrics = on('stAutoLy'); Store.save(); });
       m.$('#stLyTrans').addEventListener('change', () => { S().lyricTrans = on('stLyTrans'); Store.save(); Lyrics.render(); if (S().lyricTrans) Lyrics.ensureTrans(); });
       m.$('#stCover').addEventListener('change', () => { S().showCover = on('stCover'); Store.save(); updateMiniCover(Queue.current()); });
+      const autoBpm = m.$('#stAutoBpm');
+      if (autoBpm) autoBpm.addEventListener('change', () => {
+        S().autoBpm = autoBpm.checked;
+        Store.save();
+        toast(autoBpm.checked ? '已開啟：下次按播放時會請你分享這個分頁的音訊' : '已關閉自動偵測 BPM');
+      });
       m.$('#stNoCount').addEventListener('change', () => {
         Stats.setOptOut(on('stNoCount'));
         toast(on('stNoCount') ? '之後從這個瀏覽器開啟網站，不會計入訪客數' : '之後從這個瀏覽器開啟網站，會計入訪客數');
@@ -4743,7 +5920,8 @@ function openSettings() {
         const b = e.target.closest('[data-x]');
         if (!b) return;
         const x = b.dataset.x;
-        if (x === 'retrans-all') { Store.data.order.forEach(id => TransQ.push(id, true)); toast(`正在重新翻譯 ${Store.data.order.length} 首歌名`); }
+        if (x === 'bpm-batch') { m.close(); Batch.open(); }
+        else if (x === 'retrans-all') { Store.data.order.forEach(id => TransQ.push(id, true)); toast(`正在重新翻譯 ${Store.data.order.length} 首歌名`); }
         else if (x === 'export') exportData();
         else if (x === 'import') $('#importFile').click();
         else if (x === 'keys') openShortcuts();
