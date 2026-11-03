@@ -1,5 +1,7 @@
 # sashimimusic
 
+update #1.5 加入對英文和日文介面的支援
+
 update #1.4 加入BPM偵測功能以及BPM排序功能(偵測很容易錯誤)
 
 update #1.3 加入訪客量累積功能(不知道有沒有用)
