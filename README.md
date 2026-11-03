@@ -1,6 +1,6 @@
 # sashimimusic
 
-update #1.4 加入BPM偵測功能以及BPM排序功能
+update #1.4 加入BPM偵測功能以及BPM排序功能(偵測很容易錯誤)
 
 update #1.3 加入訪客量累積功能(不知道有沒有用)
 <img width="697" height="171" alt="image" src="https://github.com/user-attachments/assets/497dfaa8-d98d-46f1-a0dc-a27ab2c09fec" />
